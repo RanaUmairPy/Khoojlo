@@ -1,0 +1,126 @@
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Star, Eye, Heart } from 'lucide-react';
+import { addToCart as addToLocalCart } from '../utils/cart';
+import { API_BASE,apiFetch } from '../base_api';
+const CategoryPage = ({ addToCart, isDarkMode }) => {
+  const { category } = useParams(); // Get category from URL
+  const [categoryProducts, setCategoryProducts] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCategory = category || 'shoes'; // Fallback to 'shoes'
+    fetch(`${API_BASE}/api/v2/show/category/${fetchCategory}/`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => setCategoryProducts(data))
+      .catch((err) => {
+        console.error(`Error fetching ${fetchCategory} products:`, err);
+        setError(err.message);
+      });
+  }, [category]);
+
+  const handleAddToCart = (product) => {
+    addToLocalCart(product, 1);
+    if (addToCart) addToCart(product);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-gray-100 dark:from-slate-900 dark:to-gray-800">
+      {/* Category Products Section */}
+      <section className="bg-white dark:bg-slate-800 py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 capitalize">
+              {category || 'shoes'} Collection
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+              Discover our premium {category || 'shoes'} products
+            </p>
+          </div>
+
+          {error && (
+            <div className="text-center text-red-500 dark:text-red-400 mb-4">
+              Error: {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-4">
+            {categoryProducts.map((product) => (
+              <div
+                key={product.id}
+                className="w-full h-56 sm:h-72 bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden"
+              >
+                <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
+                  {product.images.map((img, index) => (
+                    <img
+                      key={index}
+                      src={`${API_BASE}${img.images}`}
+                      alt={product.name}
+                      className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${
+                        index === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'
+                      }`}
+                      loading="lazy"
+                    />
+                  ))}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <div className="flex gap-1">
+                      <button className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors">
+                        <Eye size={10} className="text-slate-700" />
+                      </button>
+                      <button className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors">
+                        <Heart size={10} className="text-slate-700" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-2 space-y-1 flex-1">
+                  <h3 className="font-medium text-slate-900 dark:text-white text-xs leading-tight line-clamp-2 text-left">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={8} fill={i < 4 ? 'currentColor' : 'none'} />
+                    ))}
+                    <span className="text-xs font-medium text-slate-600 dark:text-slate-400 ml-1">
+                      ({Math.floor(Math.random() * 500) + 100})
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <span className="text-sm font-black text-slate-900 dark:text-white">${product.price}</span>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 line-through">
+                        ${(parseFloat(product.price) * 1.3).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                    >
+                      Add to Cart
+                    </button>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                    >
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
+                <div className="absolute top-1.5 right-1.5 bg-red-500 dark:bg-red-400 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
+                  -30%
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default CategoryPage;
