@@ -1,5 +1,7 @@
+
+
 export const CART_KEY = 'react_cart';
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'https://khoojlo-backend.onrender.com';
 
 export function getCart() {
   try {

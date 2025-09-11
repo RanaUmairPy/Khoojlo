@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Trash2, MinusCircle, PlusCircle } from 'lucide-react';
 import { getCart, updateQuantity, removeFromCart, CART_KEY } from '../utils/cart';
-
+import { API_BASE } from '../base_api';
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
 
