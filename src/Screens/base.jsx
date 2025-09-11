@@ -150,12 +150,13 @@ const Base = () => {
       >
         {/* Header */}
         <header
-          className={`sticky top-0 z-50 transition-all duration-500 ${
-            scrolled ? "shadow-lg backdrop-blur-lg bg-opacity-95" : "shadow-sm"
-          } ${
-            isDarkMode ? "bg-gray-900/95 border-gray-700" : "bg-white/95 border-gray-200"
-          } border-b backdrop-blur-sm`}
-        >
+  className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+    scrolled ? "shadow-lg backdrop-blur-lg bg-opacity-95" : "shadow-sm"
+  } ${
+    isDarkMode ? "bg-gray-900/95 border-gray-700" : "bg-white/95 border-gray-200"
+  } border-b backdrop-blur-sm`}
+>
+
           <div className="w-full max-w-full px-3 sm:px-4 lg:px-6">
             <div className="flex items-center justify-between h-14 sm:h-16">
               {/* Logo */}
@@ -559,7 +560,7 @@ const Base = () => {
           </div>
         </nav>
 
-        <div className="flex-1 w-full">
+        <div className="pt-16 sm:pt-21">
           <Routes>
             <Route path="/" element={<Home addToCart={addToCart} />} />
             <Route
