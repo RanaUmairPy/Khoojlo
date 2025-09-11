@@ -2,12 +2,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import { ArrowRight, Star, Zap, Shield, Truck, Gift, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { addToCart as addToLocalCart } from '../utils/cart';
 import { apiFetch, API_BASE } from '../base_api';
+import { useNavigate } from 'react-router-dom';
+
+const CART_STORAGE_KEY = 'react_cart';
 
 const ProductSkeleton = ({ compact }) => (
   <div className={`flex-shrink-0 ${compact ? 'w-36 sm:w-full' : 'w-full'} bg-white dark:bg-slate-800 rounded-lg shadow transition-all duration-300 group relative overflow-hidden product-skeleton animate-pulse`} />
 );
 
 const Home = ({ addToCart }) => {
+  const navigate = useNavigate();
   const [latestProducts, setLatestProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [latestLoading, setLatestLoading] = useState(true);
@@ -72,10 +76,45 @@ const Home = ({ addToCart }) => {
     return () => obs.disconnect();
   }, [allProducts]);
 
+  // ensure item stored in localStorage has image/url and quantity
+  const persistCartItem = (item, qty = 1) => {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      const idStr = String(item.id);
+      const existing = arr.find((i) => String(i.id) === idStr);
+      if (existing) {
+        existing.quantity = Number(existing.quantity || 0) + qty;
+        existing.image = existing.image || item.image || '';
+        existing.price = Number(item.price || existing.price || 0);
+        existing.name = existing.name || item.name;
+      } else {
+        arr.push({
+          id: idStr,
+          name: item.name,
+          price: Number(item.price) || 0,
+          quantity: qty,
+          image: item.image || ''
+        });
+      }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(arr));
+      try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
+    } catch (e) {
+      console.warn('persistCartItem error', e);
+    }
+  };
+
   const handleAddToCart = (product) => {
-    addToLocalCart(product, 1);
+    const firstImage = product.images?.[0]?.images || '';
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: Number(product.price) || 0,
+      image: firstImage ? `${API_BASE}${firstImage}` : '',
+    };
+    addToLocalCart(cartItem, 1);
+    persistCartItem(cartItem, 1);
     if (addToCart) addToCart(product);
-    // emit cartUpdated so other parts can react
     try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
   };
 
@@ -144,7 +183,18 @@ const Home = ({ addToCart }) => {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Latest Arrivals</h2>
             <p className="text-slate-600 dark:text-slate-400 text-sm">Fresh picks just for you</p>
           </div>
-          <button className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-2 rounded-lg font-medium text-sm hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">View All <ArrowRight size={14} /></button>
+          <button
+            onClick={() => {
+              // reveal all products and scroll to section
+              setDisplayCount(allProducts.length || 9999);
+              setTimeout(() => {
+                document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' });
+              }, 120);
+            }}
+            className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-2 rounded-lg font-medium text-sm hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+          >
+            View All <ArrowRight size={14} />
+          </button>
         </div>
 
         <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-4 smooth-scroll">
@@ -152,15 +202,19 @@ const Home = ({ addToCart }) => {
             [...Array(6)].map((_, i) => <ProductSkeleton compact key={`s-${i}`} />)
           ) : (
             (latestProducts || []).map((product) => (
-              <div key={product.id} className="flex-shrink-0 w-36 sm:w-full bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+              <div
+                key={product.id}
+                onClick={() => navigate(`/product/${product.id}`)}
+                className="flex-shrink-0 w-36 sm:w-full bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
+              >
                 <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
                   {(product.images || []).map((img, idx) => (
                     <img key={idx} src={`${API_BASE}${img.images}`} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
                   ))}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="flex gap-1">
-                      <button className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Eye size={10} className="text-slate-700" /></button>
-                      <button className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Heart size={10} className="text-slate-700" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); /* maybe show quick view */ }} className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Eye size={10} className="text-slate-700" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); /* maybe wishlist */ }} className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Heart size={10} className="text-slate-700" /></button>
                     </div>
                   </div>
                 </div>
@@ -172,8 +226,18 @@ const Home = ({ addToCart }) => {
                     <span className="text-sm font-bold text-slate-900 dark:text-white">${product.price}</span>
                   </div>
                   <div className="flex gap-1">
-                    <button onClick={() => handleAddToCart(product)} className="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200">Add to Cart</button>
-                    <button onClick={() => handleAddToCart(product)} className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200">Buy Now</button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                    >
+                      Add to Cart
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                    >
+                      Buy Now
+                    </button>
                   </div>
                 </div>
 
@@ -185,7 +249,7 @@ const Home = ({ addToCart }) => {
       </section>
 
       {/* All Products */}
-      <section className="bg-white dark:bg-slate-800 py-8">
+      <section id="all-products" className="bg-white dark:bg-slate-800 py-8">
         <div className="w-full mx-0 px-3 sm:mx-2 sm:px-1">
           <div className="text-center mb-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">All Products</h2>

@@ -17,6 +17,7 @@ import Cart from "../Pages/Cart";
 import Home from "../Pages/Home";
 import Login from "../Auth/login";
 import CategoryPage from "../Pages/CategoryPage";
+import ProductDetails from "../Pages/Product_details";
 
 // Memoized NavLink component for better performance
 const NavLinkMemo = memo(({ to, children, className = "", onClick = () => {} }) => (
@@ -571,6 +572,10 @@ const Base = () => {
             <Route
               path="/category/:category"
               element={<CategoryPage addToCart={addToCart} isDarkMode={isDarkMode} />}
+            />
+            <Route
+              path="/product/:id"
+              element={<ProductDetails addToCart={addToCart} isDarkMode={isDarkMode} />}
             />
           </Routes>
         </div>

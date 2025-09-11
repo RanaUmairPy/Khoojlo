@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Star, Eye, Heart } from 'lucide-react';
 import { addToCart as addToLocalCart } from '../utils/cart';
 import { API_BASE, apiFetch } from '../base_api';
 
 const BATCH = 24;
+const CART_STORAGE_KEY = 'react_cart';
 
 const CategoryPage = ({ addToCart, isDarkMode }) => {
+  const navigate = useNavigate();
   const { category } = useParams(); // Get category from URL
   const [categoryProducts, setCategoryProducts] = useState([]);
   const [error, setError] = useState(null);
@@ -62,8 +64,44 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
     return () => obs.disconnect();
   }, [categoryProducts]);
 
+  const persistCartItem = (item, qty = 1) => {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      const idStr = String(item.id);
+      const existing = arr.find((i) => String(i.id) === idStr);
+      if (existing) {
+        existing.quantity = Number(existing.quantity || 0) + qty;
+        existing.image = existing.image || item.image || '';
+        existing.price = Number(item.price || existing.price || 0);
+        existing.name = existing.name || item.name;
+      } else {
+        arr.push({
+          id: idStr,
+          name: item.name,
+          price: Number(item.price) || 0,
+          quantity: qty,
+          image: item.image || ''
+        });
+      }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(arr));
+      try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
+    } catch (e) {
+      console.warn('persistCartItem error', e);
+    }
+  };
+
   const handleAddToCart = (product) => {
-    addToLocalCart(product, 1);
+    // normalize item shape for local cart: id, name, price (number), image (full url)
+    const firstImage = product.images?.[0]?.images || '';
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: Number(product.price) || 0,
+      image: firstImage ? `${API_BASE}${firstImage}` : '',
+    };
+    addToLocalCart(cartItem, 1);
+    persistCartItem(cartItem, 1);
     if (addToCart) addToCart(product);
     try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
   };
@@ -91,15 +129,19 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
             ) : (
               // render only visible slice
               (categoryProducts || []).slice(0, displayCount).map((product) => (
-                <div key={product.id} className="w-full h-56 sm:h-72 bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+                <div
+                  key={product.id}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="w-full h-56 sm:h-72 bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
+                >
                   <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
                     {(product.images || []).map((img, index) => (
                       <img key={index} src={`${API_BASE}${img.images}`} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${index === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
                     ))}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                       <div className="flex gap-1">
-                        <button className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Eye size={10} className="text-slate-700" /></button>
-                        <button className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Heart size={10} className="text-slate-700" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); /* quick view */ }} className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Eye size={10} className="text-slate-700" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); /* wishlist */ }} className="bg-white/90 p-1 rounded-full hover:bg-white transition-colors"><Heart size={10} className="text-slate-700" /></button>
                       </div>
                     </div>
                   </div>
@@ -115,8 +157,18 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleAddToCart(product)} className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200">Add to Cart</button>
-                      <button onClick={() => handleAddToCart(product)} className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200">Buy Now</button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                      >
+                        Add to Cart
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                        className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                      >
+                        Buy Now
+                      </button>
                     </div>
                   </div>
                   <div className="absolute top-1.5 right-1.5 bg-red-500 dark:bg-red-400 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">-30%</div>

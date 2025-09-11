@@ -7,20 +7,30 @@ const Cart = () => {
 
   useEffect(() => {
     const stored = getCart();
-    // normalize quantities to numbers and log for debugging
+    // normalize quantities to numbers and ensure image is full URL
     const normalized = stored.map((it) => ({
       ...it,
       id: String(it.id),
       quantity: Number(it.quantity) || 0,
       price: Number(it.price) || 0,
-      image: it.image || ''
+      image: it.image
+        ? (String(it.image).startsWith('http') ? it.image : `${API_BASE}${it.image}`)
+        : ''
     }));
     console.log('Loaded cart from storage:', normalized);
     setCartItems(normalized);
     // listen for external cart updates
     const onUpdate = () => {
       const latest = getCart();
-      setCartItems(latest.map((it) => ({ ...it, quantity: Number(it.quantity) })));
+      setCartItems(latest.map((it) => ({
+        ...it,
+        id: String(it.id),
+        quantity: Number(it.quantity) || 0,
+        price: Number(it.price) || 0,
+        image: it.image
+          ? (String(it.image).startsWith('http') ? it.image : `${API_BASE}${it.image}`)
+          : ''
+      })));
     };
     window.addEventListener('cartUpdated', onUpdate);
     // also listen to storage events (other tabs)
@@ -70,7 +80,7 @@ const Cart = () => {
           {cartItems.length === 0 && <div className="text-gray-600">Your cart is empty.</div>}
           {cartItems.map((item) => (
             <div key={item.id} className="flex gap-4 p-4 mb-4 bg-white rounded-lg shadow-sm">
-              <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-md" />
+              <img src={item.image || `${API_BASE}/static/default-product.png`} alt={item.name} className="w-24 h-24 object-cover rounded-md" />
               <div className="flex-grow">
                 <h3 className="font-medium">{item.name}</h3>
                 <p className="text-gray-600">${Number(item.price).toFixed(2)}</p>
