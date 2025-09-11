@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, memo } from "react";
-import { API_BASE } from "../base_api";
 import {
   Search,
   ShoppingCart,
@@ -276,7 +275,7 @@ const Base = () => {
                     >
                       {user.profile_picture ? (
                         <img
-                          src={`${API_BASE}${user.profile_picture}`}
+                          src={`http://127.0.0.1:8000/${user.profile_picture}`}
                           className="h-6 w-6 mr-1.5 profile-img"
                         />
                       ) : (
@@ -413,7 +412,7 @@ const Base = () => {
                     >
                       {user.profile_picture ? (
                         <img
-                          src={`${API_BASE}${user.profile_picture}`}
+                          src={`http://127.0.0.1:8000/${user.profile_picture}`}
                           alt="Profile"
                           className="h-6 w-6 mr-3 profile-img"
                         />

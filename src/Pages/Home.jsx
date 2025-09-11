@@ -205,8 +205,8 @@ const Home = ({ addToCart }) => {
 
       {/* All Products Section */}
       <section className="bg-white dark:bg-slate-800 py-8">
-        <div className="w-full mx-2 px-1">
-          <div className="text-center mb-8">
+        <div className="w-full mx-0 px-3 sm:mx-2 sm:px-1">
+          <div className="text-center mb-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">All Products</h2>
             <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
               Explore our complete collection of premium products
