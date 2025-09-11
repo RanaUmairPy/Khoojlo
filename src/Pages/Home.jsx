@@ -4,8 +4,6 @@ import { addToCart as addToLocalCart } from '../utils/cart';
 import { apiFetch, API_BASE } from '../base_api';
 import { useNavigate } from 'react-router-dom';
 
-const CART_STORAGE_KEY = 'react_cart';
-
 const ProductSkeleton = ({ compact }) => (
   <div className={`flex-shrink-0 ${compact ? 'w-36 sm:w-full' : 'w-full'} bg-white dark:bg-slate-800 rounded-lg shadow transition-all duration-300 group relative overflow-hidden product-skeleton animate-pulse`} />
 );
@@ -76,34 +74,7 @@ const Home = ({ addToCart }) => {
     return () => obs.disconnect();
   }, [allProducts]);
 
-  // ensure item stored in localStorage has image/url and quantity
-  const persistCartItem = (item, qty = 1) => {
-    try {
-      const raw = localStorage.getItem(CART_STORAGE_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      const idStr = String(item.id);
-      const existing = arr.find((i) => String(i.id) === idStr);
-      if (existing) {
-        existing.quantity = Number(existing.quantity || 0) + qty;
-        existing.image = existing.image || item.image || '';
-        existing.price = Number(item.price || existing.price || 0);
-        existing.name = existing.name || item.name;
-      } else {
-        arr.push({
-          id: idStr,
-          name: item.name,
-          price: Number(item.price) || 0,
-          quantity: qty,
-          image: item.image || ''
-        });
-      }
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(arr));
-      try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
-    } catch (e) {
-      console.warn('persistCartItem error', e);
-    }
-  };
-
+  // Add product to canonical cart via utils/cart.addToCart which saves and emits cartUpdated
   const handleAddToCart = (product) => {
     const firstImage = product.images?.[0]?.images || '';
     const cartItem = {
@@ -112,10 +83,8 @@ const Home = ({ addToCart }) => {
       price: Number(product.price) || 0,
       image: firstImage ? `${API_BASE}${firstImage}` : '',
     };
-    addToLocalCart(cartItem, 1);
-    persistCartItem(cartItem, 1);
+    addToLocalCart(cartItem, 1); // utils/saveCart already persists and emits cartUpdated
     if (addToCart) addToCart(product);
-    try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
   };
 
   return (
@@ -262,7 +231,11 @@ const Home = ({ addToCart }) => {
             ) : (
               // render only a slice for faster initial render
               (allProducts || []).slice(0, displayCount).map((product) => (
-                <div key={product.id} className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+                <div
+                  key={product.id}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
+                >
                   <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
                     {(product.images || []).map((img, idx) => (
                       <img key={idx} src={`${API_BASE}${img.images}`} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
@@ -279,8 +252,18 @@ const Home = ({ addToCart }) => {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleAddToCart(product)} className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200">Add to Cart</button>
-                      <button onClick={() => handleAddToCart(product)} className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200">Buy Now</button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                      >
+                        Add to Cart
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                        className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                      >
+                        Buy Now
+                      </button>
                     </div>
                   </div>
 

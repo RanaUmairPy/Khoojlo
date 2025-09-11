@@ -5,7 +5,6 @@ import { addToCart as addToLocalCart } from '../utils/cart';
 import { API_BASE, apiFetch } from '../base_api';
 
 const BATCH = 24;
-const CART_STORAGE_KEY = 'react_cart';
 
 const CategoryPage = ({ addToCart, isDarkMode }) => {
   const navigate = useNavigate();
@@ -64,33 +63,6 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
     return () => obs.disconnect();
   }, [categoryProducts]);
 
-  const persistCartItem = (item, qty = 1) => {
-    try {
-      const raw = localStorage.getItem(CART_STORAGE_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      const idStr = String(item.id);
-      const existing = arr.find((i) => String(i.id) === idStr);
-      if (existing) {
-        existing.quantity = Number(existing.quantity || 0) + qty;
-        existing.image = existing.image || item.image || '';
-        existing.price = Number(item.price || existing.price || 0);
-        existing.name = existing.name || item.name;
-      } else {
-        arr.push({
-          id: idStr,
-          name: item.name,
-          price: Number(item.price) || 0,
-          quantity: qty,
-          image: item.image || ''
-        });
-      }
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(arr));
-      try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
-    } catch (e) {
-      console.warn('persistCartItem error', e);
-    }
-  };
-
   const handleAddToCart = (product) => {
     // normalize item shape for local cart: id, name, price (number), image (full url)
     const firstImage = product.images?.[0]?.images || '';
@@ -100,10 +72,8 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
       price: Number(product.price) || 0,
       image: firstImage ? `${API_BASE}${firstImage}` : '',
     };
-    addToLocalCart(cartItem, 1);
-    persistCartItem(cartItem, 1);
+    addToLocalCart(cartItem, 1); // utils handles persistence + cartUpdated
     if (addToCart) addToCart(product);
-    try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
   };
 
   return (

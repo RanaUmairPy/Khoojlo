@@ -1,5 +1,3 @@
-
-
 export const CART_KEY = 'react_cart';
 
 const API_BASE = 'https://khoojlo-backend.onrender.com';
@@ -59,14 +57,26 @@ export function addToCart(product, quantity = 1) {
     existing.quantity = Number(existing.quantity || 0) + qtyToAdd;
     existing.quantity = Math.min(existing.quantity, 999);
   } else {
-    const imagePath = product.images?.[0]?.images || '';
-    const fullImage = imagePath ? `${API_BASE}${imagePath}` : '';
+    // Resolve image: prefer product.image (already normalized by callers), else use product.images array.
+    let image = '';
+    if (product && product.image) {
+      image = String(product.image);
+    } else if (product && product.images && product.images[0] && product.images[0].images) {
+      image = String(product.images[0].images);
+    } else {
+      image = '';
+    }
+    // Ensure full URL when possible
+    if (image && !image.startsWith('http')) {
+      // image may be a relative path like "/product_images/..."
+      image = `${API_BASE}${image}`;
+    }
     cart.push({
       id: pid,
       name: product.name,
       price: Number(product.price) || 0,
       quantity: qtyToAdd,
-      image: fullImage
+      image: image
     });
   }
   saveCart(cart);

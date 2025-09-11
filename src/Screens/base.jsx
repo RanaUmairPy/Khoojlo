@@ -18,6 +18,7 @@ import Home from "../Pages/Home";
 import Login from "../Auth/login";
 import CategoryPage from "../Pages/CategoryPage";
 import ProductDetails from "../Pages/Product_details";
+import { getCart } from "../utils/cart";
 
 // Memoized NavLink component for better performance
 const NavLinkMemo = memo(({ to, children, className = "", onClick = () => {} }) => (
@@ -59,6 +60,22 @@ const Base = () => {
     }
   }, []);
 
+  // load cart from localStorage on mount and subscribe to updates
+  useEffect(() => {
+    const load = () => {
+      try {
+        const latest = getCart();
+        setCartItems(latest);
+      } catch (e) {
+        setCartItems([]);
+      }
+    };
+    load();
+    const onUpdate = () => load();
+    window.addEventListener('cartUpdated', onUpdate);
+    return () => window.removeEventListener('cartUpdated', onUpdate);
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
@@ -97,7 +114,8 @@ const Base = () => {
   const clearSearch = () => setSearchValue("");
 
   const addToCart = (product) => {
-    setCartItems((prev) => [...prev, { ...product, quantity: 1 }]);
+    // pages/components write the canonical cart to localStorage; refresh view here
+    try { setCartItems(getCart()); } catch (e) { /* ignore */ }
   };
 
   const removeFromCart = (productId) => {
@@ -336,7 +354,7 @@ const Base = () => {
                 >
                   <ShoppingCart className="h-6 w-6" />
                   <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-medium rounded-full w-4 h-4 flex items-center justify-center animate-bounce">
-                    {cartItems.length}
+                    {cartItems.reduce((s, it) => s + Number(it.quantity || 0), 0)}
                   </span>
                 </NavLinkMemo>
 
@@ -366,7 +384,7 @@ const Base = () => {
                 >
                   <ShoppingCart className="h-5 w-5" />
                   <span className="absolute -top-0.5 -right-0.5 bg-blue-500 text-white text-xs font-medium rounded-full w-3.5 h-3.5 flex items-center justify-center animate-bounce">
-                    {cartItems.length}
+                    {cartItems.reduce((s, it) => s + Number(it.quantity || 0), 0)}
                   </span>
                 </NavLinkMemo>
                 <button
