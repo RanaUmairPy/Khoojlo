@@ -2,10 +2,10 @@ import axios from "axios";
 
 
 
-export const API_BASE = 'https://khoojlo-backend.onrender.com';
+export const API_BASE = 'https://rumairpy.pythonanywhere.com';
 // Create base API instance
 const api = axios.create({
-  baseURL: "https://khoojlo-backend.onrender.com/api",  // root URL of your Django backend
+  baseURL: "https://rumairpy.pythonanywhere.com/api",  // root URL of your Django backend
   headers: {
     "Content-Type": "application/json",
   },
@@ -13,7 +13,7 @@ const api = axios.create({
 
 export default api;
 
-const BASE_URL = "https://khoojlo-backend.onrender.com/api"; // your API root
+const BASE_URL = "https://rumairpy.pythonanywhere.com/api"; // your API root
 
 // a small wrapper around fetch
 export async function apiFetch(endpoint, options = {}) {
