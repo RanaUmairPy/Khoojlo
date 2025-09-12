@@ -23,7 +23,7 @@ import CategoryPage from "../Pages/CategoryPage";
 import ProductDetails from "../Pages/Product_details";
 import SearchPage from "../Pages/Search_page";
 import { getCart } from "../utils/cart";
-
+import Products from "../Pages/Lastest_all";
 // Memoized NavLink component for better performance
 const NavLinkMemo = memo(({ to, children, className = "", onClick = () => {} }) => (
   <NavLink
@@ -683,6 +683,9 @@ const Base = () => {
               path="/search"
               element={<SearchPage addToCart={addToCart} isDarkMode={isDarkMode} />}
             />
+          </Routes>
+           <Routes>
+            <Route path="/latest" element={<Products addToCart={addToCart} isDarkMode={isDarkMode} />} />
           </Routes>
         </div>
       </div>
