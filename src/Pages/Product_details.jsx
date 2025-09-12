@@ -278,9 +278,9 @@ const ProductDetails = () => {
      
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-1 sm:px-6 lg:px-8 py-1">
+      <div className="max-w-10xl mx-auto sm:px-6 lg:px-9 py-1">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 lg:p-8">
             
             {/* Image Gallery */}
             <div className="space-y-4">
@@ -400,14 +400,7 @@ const ProductDetails = () => {
                 </span>
               </div>
 
-              {/* Description */}
-              {product.description && (
-                <div className="prose prose-gray dark:prose-invert max-w-none">
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {product.description}
-                  </p>
-                </div>
-              )}
+              
 
               {/* Features */}
               <div className="grid grid-cols-3 gap-4 py-4 border-y border-gray-200 dark:border-gray-700">
@@ -488,48 +481,24 @@ const ProductDetails = () => {
                   Buy Now
                 </button>
               </div>
-
-              {/* Product Details */}
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Product Details</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Product ID:</span>
-                    <span className="text-gray-900 dark:text-white font-medium">{product.id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Availability:</span>
-                    <span className="text-green-600 dark:text-green-400 font-medium">In Stock</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">SKU:</span>
-                    <span className="text-gray-900 dark:text-white font-medium">PRD-{product.id}</span>
-                  </div>
-                  {product.category && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Category:</span>
-                      <span className="text-gray-900 dark:text-white font-medium">{product.category}</span>
-                    </div>
-                  )}
+              {/* Description */}
+              {product.description && (
+                
+                <div className="prose prose-gray dark:prose-invert max-w-none">
+                  <h4 className="text-xl font-bold dark:text-white mb-4">Product Description:</h4>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                     {product.description}...
+                  </p>
                 </div>
-              </div>
+              )}
+              {/* Product Details */}
+              
             </div>
           </div>
         </div>
 
         {/* Reviews Section Placeholder */}
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Customer Reviews</h2>
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-            <div className="flex justify-center mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="text-gray-300 dark:text-gray-600" size={24} />
-              ))}
-            </div>
-            <p className="text-lg font-medium mb-2">No reviews yet</p>
-            <p>Be the first to review this product!</p>
-          </div>
-        </div>
+        
       </div>
     </div>
   );
