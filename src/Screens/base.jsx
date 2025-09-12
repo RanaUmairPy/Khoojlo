@@ -339,7 +339,7 @@ const Base = () => {
                           <Sparkles className="h-3 w-3 text-red-500" /> Trending
                         </p>
                         <div className="flex flex-wrap gap-1.5">
-                          {["Sneakers", "Tech", "Fashion", "Home"].map((tag) => (
+                          {["Sneakers Winter", "Womens Bags", "Mens Jackets", "Kids Fashion"].map((tag) => (
                             <button
                               key={tag}
                               onClick={() => {
