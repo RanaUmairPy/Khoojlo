@@ -11,13 +11,17 @@ import {
   Bell,
   Sparkles,
   LogOut,
+  Star,
 } from "lucide-react";
 import { useNavigate, Routes, Route, NavLink } from "react-router-dom";
+import { useDebounce } from "use-debounce";
+import { apiFetch, API_BASE } from "../base_api";
 import Cart from "../Pages/Cart";
 import Home from "../Pages/Home";
 import Login from "../Auth/login";
 import CategoryPage from "../Pages/CategoryPage";
 import ProductDetails from "../Pages/Product_details";
+import SearchPage from "../Pages/Search_page";
 import { getCart } from "../utils/cart";
 
 // Memoized NavLink component for better performance
@@ -48,6 +52,9 @@ const Base = () => {
   const [searchValue, setSearchValue] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [user, setUser] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [debouncedSearchValue] = useDebounce(searchValue, 100);
 
   const menuRef = useRef(null);
   const menuBtnRef = useRef(null);
@@ -60,7 +67,7 @@ const Base = () => {
     }
   }, []);
 
-  // load cart from localStorage on mount and subscribe to updates
+  // Load cart from localStorage on mount and subscribe to updates
   useEffect(() => {
     const load = () => {
       try {
@@ -76,12 +83,14 @@ const Base = () => {
     return () => window.removeEventListener('cartUpdated', onUpdate);
   }, []);
 
+  // Handle scroll for header shadow
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Handle outside clicks and escape key for mobile menu
   useEffect(() => {
     const handleOutside = (e) => {
       if (!menuOpen) return;
@@ -106,16 +115,51 @@ const Base = () => {
     };
   }, [menuOpen]);
 
+  // Handle search API calls with debouncing
+  useEffect(() => {
+    if (!debouncedSearchValue.trim() || !searchFocused) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+
+    setSearchLoading(true);
+    apiFetch(`/v2/products/search/${encodeURIComponent(debouncedSearchValue)}/`)
+      .then((data) => {
+        setSearchResults(data || []);
+      })
+      .catch((err) => {
+        console.error('Error fetching search results:', err);
+        setSearchResults([]);
+      })
+      .finally(() => setSearchLoading(false));
+  }, [debouncedSearchValue, searchFocused]);
+
+  // Handle Enter key to navigate to search page
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Enter" && searchValue.trim()) {
+      setSearchFocused(false);
+      setSearchResults([]);
+      navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+    }
+  };
+
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle("dark");
   };
 
-  const clearSearch = () => setSearchValue("");
+  const clearSearch = () => {
+    setSearchValue("");
+    setSearchResults([]);
+  };
 
   const addToCart = (product) => {
-    // pages/components write the canonical cart to localStorage; refresh view here
-    try { setCartItems(getCart()); } catch (e) { /* ignore */ }
+    try {
+      setCartItems(getCart());
+    } catch (e) {
+      /* ignore */
+    }
   };
 
   const removeFromCart = (productId) => {
@@ -137,8 +181,6 @@ const Base = () => {
 
   return (
     <>
-    
-
       <style jsx>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
@@ -169,13 +211,12 @@ const Base = () => {
       >
         {/* Header */}
         <header
-  className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-    scrolled ? "shadow-lg backdrop-blur-lg bg-opacity-95" : "shadow-sm"
-  } ${
-    isDarkMode ? "bg-gray-900/95 border-gray-700" : "bg-white/95 border-gray-200"
-  } border-b backdrop-blur-sm`}
->
-
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+            scrolled ? "shadow-lg backdrop-blur-lg bg-opacity-95" : "shadow-sm"
+          } ${
+            isDarkMode ? "bg-gray-900/95 border-gray-700" : "bg-white/95 border-gray-200"
+          } border-b backdrop-blur-sm`}
+        >
           <div className="w-full max-w-full px-3 sm:px-4 lg:px-6">
             <div className="flex items-center justify-between h-14 sm:h-16">
               {/* Logo */}
@@ -206,6 +247,7 @@ const Base = () => {
                   onChange={(e) => setSearchValue(e.target.value)}
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+                  onKeyDown={handleSearchKeyDown}
                   className={`w-full rounded-full pl-10 pr-10 py-2 sm:py-2.5 text-sm border transition-all duration-300 ${
                     searchFocused
                       ? `ring-2 ${
@@ -239,31 +281,83 @@ const Base = () => {
                 )}
                 {searchFocused && (
                   <div
-                    className={`absolute top-full left-0 right-0 mt-1 rounded-lg border z-50 p-3 transition-all duration-300 ${
+                    className={`absolute top-full left-0 right-0 mt-1 rounded-lg border z-50 p-3 transition-all duration-300 max-h-96 overflow-y-auto scrollbar-hide ${
                       isDarkMode ? "bg-gray-800 border-gray-700 shadow-xl" : "bg-white border-gray-200 shadow-xl"
                     }`}
                   >
-                    <p
-                      className={`text-xs font-medium mb-2 flex items-center gap-1.5 ${
-                        isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
-                    >
-                      <Sparkles className="h-3 w-3 text-red-500" /> Trending
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {["Sneakers", "Tech", "Fashion", "Home"].map((tag) => (
-                        <button
-                          key={tag}
-                          className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 transform hover:scale-105 ${
-                            isDarkMode
-                              ? "bg-gray-700 text-gray-300 hover:bg-red-600/20 hover:text-red-300"
-                              : "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600"
+                    {searchValue && searchLoading ? (
+                      <div className="text-center text-xs font-medium text-gray-500 py-2">Searching...</div>
+                    ) : searchValue && searchResults.length > 0 ? (
+                      <div className="space-y-2">
+                        {searchResults.map((product) => (
+                          <div
+                            key={product.id}
+                            onClick={() => {
+                              setSearchFocused(false);
+                              setSearchValue("");
+                              setSearchResults([]);
+                              navigate(`/product/${product.id}`);
+                            }}
+                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200 hover:bg-opacity-80 ${
+                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            <img
+                              src={`${API_BASE}${product.images[0]?.images || ''}`}
+                              alt={product.name}
+                              className="w-12 h-12 object-cover rounded-md"
+                              loading="lazy"
+                            />
+                            <div className="flex-1">
+                              <h3 className={`text-sm font-medium line-clamp-1 ${
+                                isDarkMode ? "text-white" : "text-gray-900"
+                              }`}>{product.name}</h3>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 text-amber-500">
+                                  <Star size={10} fill="currentColor" />
+                                  <span className={`text-xs font-medium ${
+                                    isDarkMode ? "text-gray-400" : "text-gray-600"
+                                  }`}>{product.rating || 4.8}</span>
+                                </div>
+                                <span className={`text-sm font-bold ${
+                                  isDarkMode ? "text-white" : "text-gray-900"
+                                }`}>${product.price}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : searchValue ? (
+                      <div className="text-center text-xs font-medium text-gray-500 py-2">No results found</div>
+                    ) : (
+                      <>
+                        <p
+                          className={`text-xs font-medium mb-2 flex items-center gap-1.5 ${
+                            isDarkMode ? "text-gray-300" : "text-gray-600"
                           }`}
                         >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
+                          <Sparkles className="h-3 w-3 text-red-500" /> Trending
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {["Sneakers", "Tech", "Fashion", "Home"].map((tag) => (
+                            <button
+                              key={tag}
+                              onClick={() => {
+                                setSearchValue(tag);
+                                setSearchFocused(true);
+                              }}
+                              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 transform hover:scale-105 ${
+                                isDarkMode
+                                  ? "bg-gray-700 text-gray-300 hover:bg-red-600/20 hover:text-red-300"
+                                  : "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600"
+                              }`}
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -332,13 +426,11 @@ const Base = () => {
                       isDarkMode
                         ? "text-gray-300 hover:text-white hover:bg-gray-800"
                         : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     <User className="h-6 w-6 mr-1.8" />
                   </NavLinkMemo>
                 )}
-
-                
 
                 <NavLinkMemo
                   onClick={(e) => {
@@ -473,14 +565,6 @@ const Base = () => {
               </div>
 
               <div
-                className={`transform transition-all duration-700 delay-200 ${
-                  menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
-                }`}
-              >
-                
-              </div>
-
-              <div
                 className={`transform transition-all duration-700 delay-300 ${
                   menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
                 }`}
@@ -594,6 +678,10 @@ const Base = () => {
             <Route
               path="/product/:id"
               element={<ProductDetails addToCart={addToCart} isDarkMode={isDarkMode} />}
+            />
+            <Route
+              path="/search"
+              element={<SearchPage addToCart={addToCart} isDarkMode={isDarkMode} />}
             />
           </Routes>
         </div>
