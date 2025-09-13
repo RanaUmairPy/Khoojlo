@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Product URLs will be generated and written here by scripts/generate-sitemap.js
+       Run: node scripts/generate-sitemap.js
+       OR configure your CI (Vercel) build to run the generator before deploy so product URLs are included.
+  -->
+</urlset>
