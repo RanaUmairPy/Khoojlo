@@ -27,23 +27,23 @@
     }
     </script>
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <!-- Tailwind CDN loader (development-only). 
-         For production install Tailwind as a PostCSS plugin or use the Tailwind CLI:
-         https://tailwindcss.com/docs/installation -->
+    <!-- Tailwind CDN loader (temporarily allow Vercel). 
+         Long-term: build Tailwind into your production CSS (PostCSS or Tailwind CLI). -->
     <script>
       (function() {
         try {
-          const host = location.hostname;
+          const host = location.hostname || '';
           const devHosts = ['localhost', '127.0.0.1'];
-          const isDev = devHosts.includes(host) || host.endsWith('.local');
-          if (isDev) {
+          // allow local dev OR Vercel preview / production host(s)
+          const isAllowed = devHosts.includes(host) || host.endsWith('.local') || host.includes('vercel.app') || host === 'khoojlo.vercel.app';
+          if (isAllowed) {
             const s = document.createElement('script');
             s.src = 'https://cdn.tailwindcss.com';
             s.defer = true;
             document.head.appendChild(s);
           } else {
-            // Production: do not load CDN. Build Tailwind into your CSS for production.
-            console.info('Tailwind CDN disabled in production. Build Tailwind via PostCSS or the CLI for production.');
+            // Production non-Vercel: prefer compiled Tailwind
+            console.info('Tailwind CDN disabled for this host. Use built CSS for production.');
           }
         } catch (e) {
           console.warn('Tailwind loader failed', e);
