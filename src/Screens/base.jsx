@@ -13,9 +13,9 @@ import {
   LogOut,
   Star,
 } from "lucide-react";
-import { useNavigate, Routes, Route, NavLink } from "react-router-dom";
+import { useNavigate, Routes, Route, NavLink, useLocation } from "react-router-dom";
 import { useDebounce } from "use-debounce";
-import { apiFetch, API_BASE } from "../base_api";
+import { apiFetch, API_BASE, MEDIA_BASE } from "../base_api";
 import Cart from "../Pages/Cart";
 import Home from "../Pages/Home";
 import Login from "../Auth/login";
@@ -45,6 +45,7 @@ const NavLinkMemo = memo(({ to, children, className = "", onClick = () => {} }) 
 
 const Base = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -179,6 +180,93 @@ const Base = () => {
     { name: "Bags", href: "/category/bags" },
   ];
 
+  // Lightweight global SEO helper (no external Helmet dependency)
+  useEffect(() => {
+    const setMeta = (nameOrProp, content, isProperty = false) => {
+      if (!content && content !== 0) return;
+      const sel = isProperty ? `meta[property="${nameOrProp}"]` : `meta[name="${nameOrProp}"]`;
+      let el = document.head.querySelector(sel);
+      if (!el) {
+        el = document.createElement('meta');
+        if (isProperty) el.setAttribute('property', nameOrProp);
+        else el.setAttribute('name', nameOrProp);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', String(content));
+    };
+
+    const setCanonical = (href) => {
+      if (!href) return;
+      let canon = document.head.querySelector('link[rel="canonical"]');
+      if (!canon) {
+        canon = document.createElement('link');
+        canon.setAttribute('rel', 'canonical');
+        document.head.appendChild(canon);
+      }
+      canon.setAttribute('href', href);
+    };
+
+    window.setSEO = ({ title, description, url, image, type = 'website', twitterCard = 'summary_large_image', canonical } = {}) => {
+      try {
+        if (title) document.title = title;
+        if (description) setMeta('description', description);
+        setMeta('og:site_name', 'Khoojlo', true);
+        if (title) setMeta('og:title', title, true);
+        if (description) setMeta('og:description', description, true);
+        setMeta('og:type', type, true);
+        if (url) setMeta('og:url', url, true);
+        if (image) {
+          setMeta('og:image', image, true);
+          setMeta('twitter:image', image);
+        }
+        setMeta('twitter:card', twitterCard);
+        if (canonical) setCanonical(canonical);
+        else if (url) setCanonical(url);
+      } catch (e) {
+        console.warn('setSEO failed', e);
+      }
+    };
+
+    return () => {
+      try { delete window.setSEO; } catch(e) {}
+    };
+  }, []);
+
+  // Apply a sensible default SEO when location changes (helpful for category/search)
+  useEffect(() => {
+    const pathname = location?.pathname || '/';
+    const defaults = {
+      '/': {
+        title: 'Khoojlo — Shop Smart, Live Better',
+        description: 'Discover premium products at amazing prices. Free shipping on orders over RS-500.',
+      },
+    };
+    // category pages: /category/:name
+    if (pathname.startsWith('/category/')) {
+      const cat = decodeURIComponent(pathname.replace('/category/', '') || 'Category');
+      const title = `${cat} — Khoojlo`;
+      const description = `Browse ${cat} at Khoojlo. Find great prices and fast shipping.`;
+      if (window.setSEO) window.setSEO({ title, description, url: window.location.href, canonical: window.location.href });
+      else {
+        document.title = title;
+      }
+      return;
+    }
+
+    // search pages: keep a simple default
+    if (pathname.startsWith('/search')) {
+      const title = `Search results — Khoojlo`;
+      const description = `Search results on Khoojlo`;
+      if (window.setSEO) window.setSEO({ title, description, url: window.location.href, canonical: window.location.href });
+      else document.title = title;
+      return;
+    }
+
+    const def = defaults[pathname] || defaults['/'];
+    if (window.setSEO) window.setSEO({ title: def.title, description: def.description, url: window.location.href, canonical: window.location.href });
+    else document.title = def.title;
+  }, [location]);
+
   return (
     <>
       <style jsx>{`
@@ -303,7 +391,7 @@ const Base = () => {
                             }`}
                           >
                             <img
-                              src={`${API_BASE}${product.images[0]?.images || ''}`}
+                              src={(function(p){ if(!p) return ''; if(/^https?:\/\//i.test(p)) return p; return `${MEDIA_BASE}${p.startsWith('/') ? '' : '/'}${p}` })(product.images[0]?.images || '')}
                               alt={product.name}
                               className="w-12 h-12 object-cover rounded-md"
                               loading="lazy"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, ArrowLeft, Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw, Plus, Minus, Check, AlertCircle } from 'lucide-react';
-import { API_BASE, apiFetch } from '../base_api';
+import { API_BASE, MEDIA_BASE, apiFetch } from '../base_api';
 import { addToCart as addToLocalCart } from '../utils/cart';
 
 const ProductDetails = () => {
@@ -16,6 +16,13 @@ const ProductDetails = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // resolve image paths to absolute URLs (use MEDIA_BASE for relative paths)
+  const resolveImage = (path) => {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${MEDIA_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -71,6 +78,87 @@ const ProductDetails = () => {
     }
   }, [product?.id]);
 
+  useEffect(() => {
+    if (!product) return;
+
+    const seoTitle = `${product.name} — Khoojlo`;
+    const seoDescription = (product.description || '').slice(0, 160);
+    const firstImage = product.images?.[0]?.images ? resolveImage(product.images[0].images) : undefined;
+    const seoUrl = window.location.href;
+
+    if (window.setSEO) {
+      window.setSEO({
+        title: seoTitle,
+        description: seoDescription,
+        url: seoUrl,
+        image: firstImage,
+        type: 'product',
+        canonical: seoUrl
+      });
+    } else {
+      // fallback minimal meta update
+      const prevTitle = document.title;
+      document.title = seoTitle;
+      let canon = document.querySelector('link[rel="canonical"]');
+      if (!canon) { canon = document.createElement('link'); canon.setAttribute('rel', 'canonical'); document.head.appendChild(canon); }
+      canon.setAttribute('href', seoUrl);
+      // leave prevTitle restoration to outer scope if desired
+    }
+
+    // Product JSON-LD
+    const productLd = {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": product.name,
+      "image": (product.images || []).map(i => resolveImage(i.images)).filter(Boolean),
+      "description": product.description || '',
+      "sku": product.id ? String(product.id) : undefined,
+      "brand": product.brand || undefined,
+      "offers": {
+        "@type": "Offer",
+        "url": seoUrl,
+        "priceCurrency": "USD",
+        "price": Number(product.price) || 0,
+        "availability": "http://schema.org/InStock"
+      }
+    };
+    if (product.rating) {
+      productLd.aggregateRating = {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating,
+        "reviewCount": product.reviews_count || 1
+      };
+    }
+    const pScript = document.createElement('script');
+    pScript.type = 'application/ld+json';
+    pScript.id = `product-ld-${product.id}`;
+    pScript.text = JSON.stringify(productLd);
+    document.head.appendChild(pScript);
+
+    // BreadcrumbList JSON-LD for product
+    const breadcrumb = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": window.location.origin + "/" },
+        { "@type": "ListItem", "position": 2, "name": product.category || 'Product', "item": window.location.origin + `/category/${encodeURIComponent(product.category || '')}` },
+        { "@type": "ListItem", "position": 3, "name": product.name, "item": seoUrl }
+      ]
+    };
+    const bScript = document.createElement('script');
+    bScript.type = 'application/ld+json';
+    bScript.id = `breadcrumb-ld-${product.id}`;
+    bScript.text = JSON.stringify(breadcrumb);
+    document.head.appendChild(bScript);
+
+    return () => {
+      const s = document.getElementById(`product-ld-${product.id}`);
+      if (s) s.remove();
+      const b = document.getElementById(`breadcrumb-ld-${product.id}`);
+      if (b) b.remove();
+    };
+  }, [product]);
+
   const handleQuantityChange = (delta) => {
     setQuantity(prev => Math.max(1, Math.min(99, prev + delta)));
   };
@@ -83,7 +171,7 @@ const ProductDetails = () => {
       id: product.id,
       name: product.name,
       price: Number(product.price) || 0,
-      image: firstImage ? `${API_BASE}${firstImage}` : '',
+      image: firstImage ? resolveImage(firstImage) : '',
     };
     
     addToLocalCart(cartItem, quantity);
@@ -271,7 +359,7 @@ const ProductDetails = () => {
 
   const currentImage = product.images?.[mainIndex];
   const hasImages = product.images && product.images.length > 0;
-  const imageUrl = hasImages ? `${API_BASE}${currentImage?.images || ''}` : '';
+  const imageUrl = hasImages ? resolveImage(currentImage?.images || '') : '';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -359,7 +447,7 @@ const ProductDetails = () => {
                       }`}
                     >
                       <img 
-                        src={`${API_BASE}${img.images}`} 
+                        src={resolveImage(img.images)} 
                         alt={`${product.name} view ${idx + 1}`} 
                         className="w-full h-full object-cover"
                       />

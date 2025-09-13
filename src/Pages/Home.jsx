@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { ArrowRight, Star, Zap, Shield, Truck, Gift, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { addToCart as addToLocalCart } from '../utils/cart';
-import { apiFetch, API_BASE } from '../base_api';
+import { apiFetch, API_BASE, MEDIA_BASE } from '../base_api';
 import { useNavigate } from 'react-router-dom';
 
 const ProductSkeleton = ({ compact }) => (
@@ -9,6 +9,13 @@ const ProductSkeleton = ({ compact }) => (
 );
 
 const Home = ({ addToCart }) => {
+  // resolve image URL: use absolute if provided, else prefix MEDIA_BASE
+  const resolveImage = (path) => {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${MEDIA_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
+
   const navigate = useNavigate();
   const [latestProducts, setLatestProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
@@ -81,11 +88,57 @@ const Home = ({ addToCart }) => {
       id: product.id,
       name: product.name,
       price: Number(product.price) || 0,
-      image: firstImage ? `${API_BASE}${firstImage}` : '',
+      image: firstImage ? resolveImage(firstImage) : '',
     };
     addToLocalCart(cartItem, 1); // utils/saveCart already persists and emits cartUpdated
     if (addToCart) addToCart(product);
   };
+
+  useEffect(() => {
+    const seo = {
+      title: 'Khoojlo — Shop Smart, Live Better',
+      description: 'Discover premium products at amazing prices. Free shipping on orders over RS-500.',
+      url: window.location.origin + '/',
+      canonical: window.location.origin + '/'
+    };
+    if (window.setSEO) window.setSEO(seo);
+    else {
+      document.title = seo.title;
+      // fallback canonical
+      let canon = document.querySelector('link[rel="canonical"]');
+      if (!canon) { canon = document.createElement('link'); canon.setAttribute('rel', 'canonical'); document.head.appendChild(canon); }
+      canon.setAttribute('href', seo.canonical);
+    }
+    return () => {
+      // keep site defaults; no aggressive cleanup
+    };
+  }, []);
+
+  // Inject ItemList JSON-LD for latest products (helps crawlers understand list)
+  useEffect(() => {
+    if (!latestProducts || latestProducts.length === 0) return;
+    const items = latestProducts.slice(0, 10).map((p, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "url": `${window.location.origin}/product/${p.id}`,
+      "name": p.name
+    }));
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Latest Arrivals - Khoojlo",
+      "itemListElement": items
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'home-itemlist-ld';
+    script.text = JSON.stringify(ld);
+    document.head.appendChild(script);
+    return () => {
+      const s = document.getElementById('home-itemlist-ld');
+      if (s) s.remove();
+    };
+  }, [latestProducts]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -125,7 +178,7 @@ const Home = ({ addToCart }) => {
                 {(latestProducts || []).slice(0, 3).map((product, index) => (
                   <div key={product.id || index} className="bg-white/10 backdrop-blur-sm rounded-lg p-2.5 hover:bg-white/20 transition-all duration-300 flex items-center gap-2" style={{ transform: `translateX(${index * 4}px)`, zIndex: 3 - index }}>
                     <div className="relative overflow-hidden rounded-lg flex-shrink-0">
-                      <img src={`${API_BASE}${product.images?.[0]?.images || ''}`} alt={product.name} className="w-12 h-12 object-cover" loading="lazy" />
+                      <img src={resolveImage(product.images?.[0]?.images || '')} alt={product.name} className="w-12 h-12 object-cover" loading="lazy" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-medium text-xs leading-tight line-clamp-1 mb-0.5">{product.name}</h3>
@@ -174,7 +227,7 @@ const Home = ({ addToCart }) => {
               >
                 <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
                   {(product.images || []).map((img, idx) => (
-                    <img key={idx} src={`${API_BASE}${img.images}`} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
+                    <img key={idx} src={resolveImage(img.images)} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
                   ))}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="flex gap-1">
@@ -234,7 +287,7 @@ const Home = ({ addToCart }) => {
                 >
                   <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
                     {(product.images || []).map((img, idx) => (
-                      <img key={idx} src={`${API_BASE}${img.images}`} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
+                      <img key={idx} src={resolveImage(img.images)} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
                     ))}
                   </div>
 

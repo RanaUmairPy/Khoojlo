@@ -2,13 +2,19 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, Eye, Heart } from 'lucide-react';
 import { addToCart as addToLocalCart } from '../utils/cart';
-import { API_BASE, apiFetch } from '../base_api';
+import { API_BASE, MEDIA_BASE, apiFetch } from '../base_api';
 
 const BATCH = 24;
 
 const CategoryPage = ({ addToCart, isDarkMode }) => {
   const navigate = useNavigate();
   const { category } = useParams(); // Get category from URL
+  // resolve image paths to absolute URLs (use MEDIA_BASE for relative paths)
+  const resolveImage = (path) => {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${MEDIA_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
   const [categoryProducts, setCategoryProducts] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +76,7 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
       id: product.id,
       name: product.name,
       price: Number(product.price) || 0,
-      image: firstImage ? `${API_BASE}${firstImage}` : '',
+      image: firstImage ? resolveImage(firstImage) : '',
     };
     addToLocalCart(cartItem, 1); // utils handles persistence + cartUpdated
     if (addToCart) addToCart(product);
@@ -106,7 +112,7 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
                 >
                   <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
                     {(product.images || []).map((img, index) => (
-                      <img key={index} src={`${API_BASE}${img.images}`} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${index === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
+                      <img key={index} src={resolveImage(img.images)} alt={product.name} className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${index === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'}`} loading="lazy" />
                     ))}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                       <div className="flex gap-1">
