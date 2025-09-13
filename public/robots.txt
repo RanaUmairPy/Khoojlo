@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Sitemap: https://khoojlo.vercel.app/sitemap.xml
+# Crawl-delay can be added if your backend has rate limits:
+# Crawl-delay: 10
