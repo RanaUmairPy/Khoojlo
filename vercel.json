@@ -1,7 +1,5 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" },
-    { "source": "/sitemap.xml", "destination": "https://rumairpy.pythonanywhere.com/api/v2/sitemap.xml" }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
-
