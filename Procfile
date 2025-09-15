@@ -1,1 +1,1 @@
-web: npx serve -s build -l 8000
+web: npx serve -s dist -l 8000
