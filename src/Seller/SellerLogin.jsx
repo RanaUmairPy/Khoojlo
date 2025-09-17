@@ -15,7 +15,7 @@ const SellerLogin = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${API_BASE}/api/v1/seller-login/`, {
+      const response = await axios.post(`${API_BASE}/v1/seller-login/`, {
         email,
         password
       });
