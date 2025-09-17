@@ -128,8 +128,8 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <span className="text-sm font-black text-slate-900 dark:text-white">${product.price}</span>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 line-through">${(parseFloat(product.price) * 1.3).toFixed(2)}</div>
+                        <span className="text-sm font-black text-slate-900 dark:text-white">{product.price}</span>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 line-through">Rs{(parseFloat(product.price) * 1.3).toFixed(2)}</div>
                       </div>
                     </div>
                     <div className="flex gap-1">

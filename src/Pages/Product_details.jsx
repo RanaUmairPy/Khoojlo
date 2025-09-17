@@ -478,10 +478,10 @@ const ProductDetails = () => {
               {/* Pricing */}
               <div className="flex items-baseline gap-3">
                 <span className="text-4xl font-bold text-gray-900 dark:text-white">
-                  ${product.price}
+                  {product.price}
                 </span>
                 <span className="text-lg text-gray-500 line-through">
-                  ${(parseFloat(product.price) * 1.2).toFixed(2)}
+                  Rs{(parseFloat(product.price) * 1.2).toFixed(2)}
                 </span>
                 <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded text-sm font-medium">
                   17% OFF
@@ -495,7 +495,7 @@ const ProductDetails = () => {
                 <div className="text-center">
                   <Truck className="mx-auto text-blue-600 mb-2" size={24} />
                   <div className="text-sm font-medium text-gray-900 dark:text-white">Free Shipping</div>
-                  <div className="text-xs text-gray-500">Orders over $50</div>
+                  <div className="text-xs text-gray-500">Orders over Rs1000</div>
                 </div>
                 <div className="text-center">
                   <RotateCcw className="mx-auto text-green-600 mb-2" size={24} />
