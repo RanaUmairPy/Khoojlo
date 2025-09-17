@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_BASE } from "../base_api";
+import { API_BASE,MEDIA_BASE } from "../base_api";
 
 import { 
   Package, 

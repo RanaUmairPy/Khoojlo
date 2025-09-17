@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_BASE } from "../base_api";
+import { API_BASE,MEDIA_BASE } from "../base_api";
 import { 
   Package, 
   ShoppingCart, 
@@ -45,7 +45,7 @@ const ImageSlider = ({ images }) => {
   return (
     <div className="w-full h-full relative flex items-center justify-center">
       <img
-        src={`${API_BASE}${images[currentIndex].images}`}
+        src={`${MEDIA_BASE}${images[currentIndex].images}`}
         alt={`Product ${currentIndex + 1}`}
         className="w-full h-full object-cover rounded-t-lg"
       />
@@ -135,7 +135,7 @@ const ProductsTab = () => {
         setEditingProductId(null);
       } else {
         await axios.post(
-          `${API_BASE}/api/v2/products/`,
+          `${API_BASE}/v2/products/`,
           data,
           { headers: { Authorization: `Bearer ${token}` } }
         );

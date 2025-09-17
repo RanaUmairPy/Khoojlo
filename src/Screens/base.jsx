@@ -323,7 +323,7 @@ const Base = () => {
                     isDarkMode ? "text-red-400" : "text-red-600"
                   }`}
                 />
-                Khoojlo
+                Khojlo
               </NavLinkMemo>
 
               {/* Search */}
