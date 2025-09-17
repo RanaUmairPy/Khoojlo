@@ -89,7 +89,7 @@ const ProductsTab = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/api/v2/products/`, {
+      const res = await axios.get(`${API_BASE}/v2/products/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(res.data);
@@ -128,7 +128,7 @@ const ProductsTab = () => {
     try {
       if (editingProductId) {
         await axios.put(
-          `${API_BASE}/api/v2/products/${editingProductId}/`,
+          `${API_BASE}/v2/products/${editingProductId}/`,
           data,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -164,7 +164,7 @@ const ProductsTab = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await axios.delete(`${API_BASE}/api/v2/products/${id}/`, {
+        await axios.delete(`${API_BASE}/v2/products/${id}/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchProducts();
