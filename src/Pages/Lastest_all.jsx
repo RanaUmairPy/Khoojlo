@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Star, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { addToCart as addToLocalCart } from '../utils/cart';
-import { apiFetch, API_BASE } from '../base_api';
+import { apiFetch, API_BASE, MEDIA_BASE } from '../base_api';
 import { useNavigate } from 'react-router-dom';
 
 const ProductSkeleton = () => (
   <div className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow transition-all duration-300 group relative overflow-hidden product-skeleton animate-pulse" style={{ minHeight: '8rem' }} />
 );
-
 const Products = ({ addToCart }) => {
   const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
@@ -16,6 +15,13 @@ const Products = ({ addToCart }) => {
   const BATCH = 24;
   const [displayCount, setDisplayCount] = useState(BATCH);
   const loadMoreRef = useRef(null);
+
+  // resolve image paths to absolute URLs (use MEDIA_BASE for relative paths)
+  const resolveImage = (path) => {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${MEDIA_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
 
   useEffect(() => {
     // Read cached data first for instant UI
@@ -81,7 +87,7 @@ const Products = ({ addToCart }) => {
       id: product.id,
       name: product.name,
       price: Number(product.price) || 0,
-      image: firstImage ? `${API_BASE}${firstImage}` : '',
+      image: firstImage ? resolveImage(firstImage) : '',
     };
     addToLocalCart(cartItem, 1);
     if (addToCart) addToCart(product);
@@ -136,13 +142,13 @@ const Products = ({ addToCart }) => {
                   {(product.images || []).map((img, idx) => (
                     <img
                       key={idx}
-                      src={`${API_BASE}${img.images}`}
+                      src={resolveImage(img.images)}
                       alt={product.name}
                       className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${
                         idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'
                       }`}
                       loading="lazy"
-                      onError={() => console.error(`Failed to load image: ${API_BASE}${img.images}`)}
+                      onError={() => console.error(`Failed to load image: ${resolveImage(img.images)}`)}
                     />
                   ))}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -179,8 +185,8 @@ const Products = ({ addToCart }) => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <span className="text-sm font-black text-slate-900 dark:text-white">${product.price}</span>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 line-through">${(parseFloat(product.price) * 1.3).toFixed(2)}</div>
+                      <span className="text-sm font-black text-slate-900 dark:text-white">Rs{product.price}</span>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 line-through">Rs{(parseFloat(product.price) * 1.3).toFixed(2)}</div>
                     </div>
                   </div>
                   <div className="flex gap-1">

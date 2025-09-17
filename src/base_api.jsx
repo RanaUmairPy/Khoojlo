@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-
+export const API_BASE1 = 'https://rumairpy.pythonanywhere.com';
 export const API_BASE = 'https://rumairpy.pythonanywhere.com';
 // Create base API instance
 const api = axios.create({
