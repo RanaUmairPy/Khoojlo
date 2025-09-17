@@ -241,7 +241,7 @@ const Home = ({ addToCart }) => {
                   <h3 className="font-medium text-slate-900 dark:text-white text-xs leading-tight line-clamp-2 text-left">{product.name}</h3>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1 text-amber-500"><Star size={10} fill="currentColor" /><span className="text-xs font-medium text-slate-600 dark:text-slate-400">{product.rating || 4.8}</span></div>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">${product.price}</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">Rs{product.price}</span>
                   </div>
                   <div className="flex gap-1">
                     <button
