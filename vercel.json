@@ -5,7 +5,25 @@
       "headers": [
         {
           "key": "Content-Type",
-          "value": "application/xml"
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/pages-sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/products-sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
         }
       ]
     },
@@ -14,9 +32,31 @@
       "headers": [
         {
           "key": "Content-Type",
-          "value": "text/plain"
+          "value": "text/plain; charset=utf-8"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/pages-sitemap.xml",
+      "destination": "/pages-sitemap.xml"
+    },
+    {
+      "source": "/products-sitemap.xml",
+      "destination": "/products-sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
