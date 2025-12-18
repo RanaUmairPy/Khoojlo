@@ -3,6 +3,7 @@ import { ArrowRight, Star, Zap, Shield, Truck, Gift, Eye, Heart, ShoppingBag } f
 import { addToCart as addToLocalCart } from '../utils/cart';
 import { apiFetch, API_BASE, MEDIA_BASE } from '../base_api';
 import { useNavigate } from 'react-router-dom';
+import { createProductUrl } from '../utils/slug';
 
 const ProductSkeleton = ({ compact }) => (
   <div className={`flex-shrink-0 ${compact ? 'w-36 sm:w-full' : 'w-full'} bg-white dark:bg-slate-800 rounded-lg shadow transition-all duration-300 group relative overflow-hidden product-skeleton animate-pulse`} />
@@ -48,7 +49,7 @@ const Home = ({ addToCart }) => {
     apiFetch('/v2/show/latest/')
       .then((data) => {
         setLatestProducts(data || []);
-        try { localStorage.setItem('home_latest_products', JSON.stringify(data || [])); } catch(e) {}
+        try { localStorage.setItem('home_latest_products', JSON.stringify(data || [])); } catch (e) { }
       })
       .catch((err) => console.error('Error fetching latest products:', err))
       .finally(() => setLatestLoading(false));
@@ -58,7 +59,7 @@ const Home = ({ addToCart }) => {
     apiFetch('/v2/show/all/')
       .then((data) => {
         setAllProducts(data || []);
-        try { localStorage.setItem('home_all_products', JSON.stringify(data || [])); } catch(e) {}
+        try { localStorage.setItem('home_all_products', JSON.stringify(data || [])); } catch (e) { }
         // reset display count when new data arrives
         setDisplayCount(Math.min(BATCH, (data || []).length));
       })
@@ -120,7 +121,7 @@ const Home = ({ addToCart }) => {
     const items = latestProducts.slice(0, 10).map((p, idx) => ({
       "@type": "ListItem",
       "position": idx + 1,
-      "url": `${window.location.origin}/product/${p.id}`,
+      "url": `${window.location.origin}${createProductUrl(p.id, p.name)}`,
       "name": p.name
     }));
     const ld = {
@@ -160,10 +161,15 @@ const Home = ({ addToCart }) => {
               <p className="text-blue-100 text-sm md:text-base max-w-md">Discover premium products at amazing prices. Free shipping on orders over RS-500.</p>
 
               <div className="flex gap-3">
-                <button className="bg-white text-slate-900 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2 text-sm">
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('all-products');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-white text-slate-900 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2 text-sm"
+                >
                   <ShoppingBag size={16} /> Shop Now
                 </button>
-                <button className="border border-white/30 text-white px-4 py-2 rounded-lg font-semibold hover:bg-white/10 transition-colors duration-200 text-sm">View Deals</button>
               </div>
 
               <div className="flex gap-4 pt-2">
@@ -176,14 +182,20 @@ const Home = ({ addToCart }) => {
             <div className="hidden mx-auto lg:block">
               <div className="space-y-2">
                 {(latestProducts || []).slice(0, 3).map((product, index) => (
-                  <div key={product.id || index} className="bg-white/10 backdrop-blur-sm rounded-lg p-2.5 hover:bg-white/20 transition-all duration-300 flex items-center gap-2" style={{ transform: `translateX(${index * 4}px)`, zIndex: 3 - index }}>
+                  <div key={product.id || index}
+                    className="bg-white/10 backdrop-blur-sm rounded-lg p-2.5 hover:bg-white/20 transition-all duration-300 flex items-center gap-2 cursor-pointer"
+                    style={{ transform: `translateX(${index * 4}px)`, zIndex: 3 - index }}
+                    onClick={() => navigate(createProductUrl(product.id, product.name))}
+                  >
                     <div className="relative overflow-hidden rounded-lg flex-shrink-0">
                       <img src={resolveImage(product.images?.[0]?.images || '')} alt={product.name} className="w-12 h-12 object-cover" loading="lazy" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-medium text-xs leading-tight line-clamp-1 mb-0.5">{product.name}</h3>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1"><Star size={8} fill="currentColor" className="text-yellow-400" /><span className="text-xs text-blue-100">4.8</span></div>
+                        {product.rating && (
+                          <div className="flex items-center gap-1"><Star size={8} fill="currentColor" className="text-yellow-400" /><span className="text-xs text-blue-100">{product.rating}</span></div>
+                        )}
                         <span className="text-sm font-bold text-white">${product.price}</span>
                       </div>
                     </div>
@@ -201,7 +213,7 @@ const Home = ({ addToCart }) => {
       {/* Latest */}
       <section className="w-full mx-2 px-1 py-8">
         <div className="flex items-center justify-between mb-6">
-          
+
           <div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Latest Arrivals</h2>
             <p className="text-slate-600 dark:text-slate-400 text-sm">Fresh picks just for you</p>
@@ -222,7 +234,7 @@ const Home = ({ addToCart }) => {
             (latestProducts || []).map((product) => (
               <div
                 key={product.id}
-                onClick={() => navigate(`/product/${product.id}`)}
+                onClick={() => navigate(createProductUrl(product.id, product.name))}
                 className="flex-shrink-0 w-36 sm:w-full bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
               >
                 <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
@@ -240,7 +252,7 @@ const Home = ({ addToCart }) => {
                 <div className="p-2 space-y-1">
                   <h3 className="font-medium text-slate-900 dark:text-white text-xs leading-tight line-clamp-2 text-left">{product.name}</h3>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-amber-500"><Star size={10} fill="currentColor" /><span className="text-xs font-medium text-slate-600 dark:text-slate-400">{product.rating || 4.8}</span></div>
+                    <div className="flex items-center gap-1 text-amber-500">{product.rating ? <><Star size={10} fill="currentColor" /><span className="text-xs font-medium text-slate-600 dark:text-slate-400">{product.rating}</span></> : null}</div>
                     <span className="text-sm font-bold text-slate-900 dark:text-white">Rs{product.price}</span>
                   </div>
                   <div className="flex gap-1">
@@ -251,7 +263,7 @@ const Home = ({ addToCart }) => {
                       Add to Cart
                     </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); navigate(createProductUrl(product.id, product.name)); }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
                     >
                       Buy Now
@@ -282,7 +294,7 @@ const Home = ({ addToCart }) => {
               (allProducts || []).slice(0, displayCount).map((product) => (
                 <div
                   key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
+                  onClick={() => navigate(createProductUrl(product.id, product.name))}
                   className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
                 >
                   <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
@@ -293,11 +305,12 @@ const Home = ({ addToCart }) => {
 
                   <div className="p-2 space-y-1">
                     <h3 className="font-medium text-slate-900 dark:text-white text-xs leading-tight line-clamp-2 text-left">{product.name}</h3>
-                    <div className="flex items-center gap-1 text-amber-500">{[...Array(5)].map((_, i) => (<Star key={i} size={8} fill={i < 4 ? 'currentColor' : 'none'} />))}<span className="text-xs font-medium text-slate-600 dark:text-slate-400 ml-1">({Math.floor(Math.random() * 500) + 100})</span></div>
+                    <div className="flex items-center gap-1 text-amber-500">
+                      {product.rating && <><Star size={8} fill="currentColor" /><span className="text-xs font-medium text-slate-600 dark:text-slate-400 ml-1">({product.rating})</span></>}
+                    </div>
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <span className="text-sm font-black text-slate-900 dark:text-white">Rs{product.price}</span>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 line-through">Rs{(parseFloat(product.price) * 1.3).toFixed(2)}</div>
                       </div>
                     </div>
                     <div className="flex gap-1">
@@ -308,15 +321,13 @@ const Home = ({ addToCart }) => {
                         Add to Cart
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); navigate(createProductUrl(product.id, product.name)); }}
                         className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
                       >
                         Buy Now
                       </button>
                     </div>
                   </div>
-
-                  <div className="absolute top-1.5 right-1.5 bg-red-500 dark:bg-red-400 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">-30%</div>
                 </div>
               ))
             )}
@@ -334,4 +345,3 @@ const Home = ({ addToCart }) => {
 };
 
 export default Home;
-

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Star, ShoppingBag, Eye, Heart } from 'lucide-react';
+import { Star, Eye, Heart } from 'lucide-react';
 import { apiFetch, API_BASE } from '../base_api';
 import { addToCart as addToLocalCart } from '../utils/cart';
+import { createProductUrl } from '../utils/slug';
 
 const ProductSkeleton = () => (
   <div className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow transition-all duration-300 group relative overflow-hidden animate-pulse" style={{ minHeight: '8rem' }} />
@@ -65,7 +66,7 @@ const SearchPage = ({ addToCart, isDarkMode }) => {
             {searchResults.map((product) => (
               <div
                 key={product.id}
-                onClick={() => navigate(`/product/${product.id}`)}
+                onClick={() => navigate(createProductUrl(product.id, product.name))}
                 className={`w-full ${isDarkMode ? 'bg-slate-700' : 'bg-slate-50'} rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer`}
               >
                 <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
@@ -102,10 +103,14 @@ const SearchPage = ({ addToCart, isDarkMode }) => {
                   </h3>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1 text-amber-500">
-                      <Star size={10} fill="currentColor" />
-                      <span className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                        {product.rating || 4.8}
-                      </span>
+                      {product.rating && (
+                        <>
+                          <Star size={10} fill="currentColor" />
+                          <span className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                            {product.rating}
+                          </span>
+                        </>
+                      )}
                     </div>
                     <span className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                       ${product.price}
@@ -119,15 +124,13 @@ const SearchPage = ({ addToCart, isDarkMode }) => {
                       Add to Cart
                     </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); navigate(createProductUrl(product.id, product.name)); }}
                       className={`flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200`}
                     >
                       Buy Now
                     </button>
                   </div>
                 </div>
-
-                <div className="absolute top-1.5 left-1.5 bg-green-500 dark:bg-green-400 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">NEW</div>
               </div>
             ))}
           </div>

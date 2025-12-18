@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Star, Eye, Heart } from 'lucide-react';
 import { addToCart as addToLocalCart } from '../utils/cart';
 import { API_BASE, MEDIA_BASE, apiFetch } from '../base_api';
+import { createProductUrl } from '../utils/slug';
 
 const BATCH = 24;
 
@@ -45,7 +46,7 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
       .then((data) => {
         setCategoryProducts(data || []);
         setDisplayCount(Math.min(BATCH, (data || []).length));
-        try { localStorage.setItem(cacheKey, JSON.stringify(data || [])); } catch (e) {}
+        try { localStorage.setItem(cacheKey, JSON.stringify(data || [])); } catch (e) { }
       })
       .catch((err) => {
         console.error(`Error fetching ${fetchCategory} products:`, err);
@@ -107,8 +108,8 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
               (categoryProducts || []).slice(0, displayCount).map((product) => (
                 <div
                   key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
-                  className="w-full h-56 sm:h-72 bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
+                  onClick={() => navigate(createProductUrl(product.id, product.name))}
+                  className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
                 >
                   <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
                     {(product.images || []).map((img, index) => (
@@ -123,13 +124,17 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
                   </div>
                   <div className="p-2 space-y-1 flex-1">
                     <h3 className="font-medium text-slate-900 dark:text-white text-xs leading-tight line-clamp-2 text-left">{product.name}</h3>
-                    <div className="flex items-center gap-1 text-amber-500">{[...Array(5)].map((_, i) => (<Star key={i} size={8} fill={i < 4 ? 'currentColor' : 'none'} />))}
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 ml-1">({Math.floor(Math.random() * 500) + 100})</span>
+                    <div className="flex items-center gap-1 text-amber-500">
+                      {product.rating && (
+                        <>
+                          <Star size={8} fill="currentColor" />
+                          <span className="text-xs font-medium text-slate-600 dark:text-slate-400 ml-1">({product.rating})</span>
+                        </>
+                      )}
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <span className="text-sm font-black text-slate-900 dark:text-white">{product.price}</span>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 line-through">Rs{(parseFloat(product.price) * 1.3).toFixed(2)}</div>
                       </div>
                     </div>
                     <div className="flex gap-1">
@@ -140,14 +145,13 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
                         Add to Cart
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); navigate(createProductUrl(product.id, product.name)); }}
                         className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
                       >
                         Buy Now
                       </button>
                     </div>
                   </div>
-                  <div className="absolute top-1.5 right-1.5 bg-red-500 dark:bg-red-400 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">-30%</div>
                 </div>
               ))
             )}

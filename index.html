@@ -1,20 +1,23 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- SEO defaults -->
-    <meta name="description" content="Khoojlo — discover premium products at great prices. Free shipping on orders over RS-500." />
-    <meta name="robots" content="index,follow" />
-    <link rel="canonical" href="https://khoojlo.vercel.app/" />
-    <!-- Open Graph / Twitter defaults -->
-    <meta property="og:site_name" content="Khoojlo" />
-    <meta property="og:type" content="website" />
-    <meta name="google-site-verification" content="Mu1g3Ewu1PZ-x4f9ik42nlCSc0oeC88GG_TPqnBOxmc" />
-    <meta property="og:title" content="Khoojlo — Shop Smart, Live Better" />
-    <meta property="og:description" content="Discover premium products at amazing prices. Free shipping on orders over RS-500." />
-    <meta name="twitter:card" content="summary_large_image" />
-    <!-- Structured data for Website & Organization -->
-    <script type="application/ld+json">
+
+<head>
+  <meta charset="UTF-8" />
+  <!-- SEO defaults -->
+  <meta name="description"
+    content="Khoojlo — discover premium products at great prices. Free shipping on orders over RS-500." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://khoojlo.vercel.app/" />
+  <!-- Open Graph / Twitter defaults -->
+  <meta property="og:site_name" content="Khoojlo" />
+  <meta property="og:type" content="website" />
+  <meta name="google-site-verification" content="Mu1g3Ewu1PZ-x4f9ik42nlCSc0oeC88GG_TPqnBOxmc" />
+  <meta property="og:title" content="Khoojlo — Shop Smart, Live Better" />
+  <meta property="og:description"
+    content="Discover premium products at amazing prices. Free shipping on orders over RS-500." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <!-- Structured data for Website & Organization -->
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -27,42 +30,21 @@
       }
     }
     </script>
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 
-    <!-- Tailwind CDN loader (temporarily allow Vercel). 
-         Long-term: build Tailwind into your production CSS (PostCSS or Tailwind CLI). -->
-    <script>
-      (function() {
-        try {
-          const host = location.hostname || '';
-          const devHosts = ['localhost', '127.0.0.1'];
-          // allow local dev OR Vercel preview / production host(s)
-          const isAllowed = devHosts.includes(host) || host.endsWith('.local') || host.includes('vercel.app') || host === 'khoojlo.vercel.app';
-          if (isAllowed) {
-            const s = document.createElement('script');
-            s.src = 'https://cdn.tailwindcss.com';
-            s.defer = true;
-            document.head.appendChild(s);
-          } else {
-            // Production non-Vercel: prefer compiled Tailwind
-            console.info('Tailwind CDN disabled for this host. Use built CSS for production.');
-          }
-        } catch (e) {
-          console.warn('Tailwind loader failed', e);
-        }
-      })();
-    </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    
-    <title>Khoojlo</title>
-    <!-- Instruct crawlers and point to sitemap -->
-    <meta name="googlebot" content="index,follow" />
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+
+  <title>Khoojlo</title>
+  <!-- Instruct crawlers and point to sitemap -->
+  <meta name="googlebot" content="index,follow" />
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

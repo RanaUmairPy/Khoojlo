@@ -22,10 +22,12 @@ import Login from "../Auth/login";
 import CategoryPage from "../Pages/CategoryPage";
 import ProductDetails from "../Pages/Product_details";
 import SearchPage from "../Pages/Search_page";
+import Checkout from "../Pages/Checkout"; // Import Checkout
 import { getCart } from "../utils/cart";
 import Products from "../Pages/Lastest_all";
+import { createProductUrl } from "../utils/slug"; // Import helper
 // Memoized NavLink component for better performance
-const NavLinkMemo = memo(({ to, children, className = "", onClick = () => {} }) => (
+const NavLinkMemo = memo(({ to, children, className = "", onClick = () => { } }) => (
   <NavLink
     to={to}
     onClick={(e) => {
@@ -228,7 +230,7 @@ const Base = () => {
     };
 
     return () => {
-      try { delete window.setSEO; } catch(e) {}
+      try { delete window.setSEO; } catch (e) { }
     };
   }, []);
 
@@ -269,7 +271,7 @@ const Base = () => {
 
   return (
     <>
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
@@ -293,17 +295,14 @@ const Base = () => {
       `}</style>
 
       <div
-        className={`font-sans transition-all duration-300 min-h-screen ${
-          isDarkMode ? "bg-slate-900" : "bg-slate-50"
-        } app-bg`}
+        className={`font-sans transition-all duration-300 min-h-screen ${isDarkMode ? "bg-slate-900" : "bg-slate-50"
+          } app-bg`}
       >
         {/* Header */}
         <header
-          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-            scrolled ? "shadow-lg backdrop-blur-lg bg-opacity-95" : "shadow-sm"
-          } ${
-            isDarkMode ? "bg-gray-900/95 border-gray-700" : "bg-white/95 border-gray-200"
-          } border-b backdrop-blur-sm`}
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "shadow-lg backdrop-blur-lg bg-opacity-95" : "shadow-sm"
+            } ${isDarkMode ? "bg-gray-900/95 border-gray-700" : "bg-white/95 border-gray-200"
+            } border-b backdrop-blur-sm`}
         >
           <div className="w-full max-w-full px-3 sm:px-4 lg:px-6">
             <div className="flex items-center justify-between h-14 sm:h-16">
@@ -314,16 +313,14 @@ const Base = () => {
                   navigate("/");
                 }}
                 to="/"
-                className={`text-lg sm:text-xl md:text-2xl font-bold transition-all duration-300 flex items-center gap-1 sm:gap-2 shrink-0 transform hover:scale-105 ${
-                  isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"
-                }`}
+                className={`text-lg sm:text-xl md:text-2xl font-bold transition-all duration-300 flex items-center gap-1 sm:gap-2 shrink-0 transform hover:scale-105 ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"
+                  }`}
               >
                 <Sparkles
-                  className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 animate-pulse ${
-                    isDarkMode ? "text-red-400" : "text-red-600"
-                  }`}
+                  className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 animate-pulse ${isDarkMode ? "text-red-400" : "text-red-600"
+                    }`}
                 />
-                Khojlo
+                Khoojlo
               </NavLinkMemo>
 
               {/* Search */}
@@ -336,42 +333,35 @@ const Base = () => {
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
                   onKeyDown={handleSearchKeyDown}
-                  className={`w-full rounded-full pl-10 pr-10 py-2 sm:py-2.5 text-sm border transition-all duration-300 ${
-                    searchFocused
-                      ? `ring-2 ${
-                          isDarkMode
-                            ? "border-red-500 ring-red-500/50 bg-gray-800 shadow-lg"
-                            : "border-red-500 ring-red-500/50 bg-white shadow-lg"
-                        }`
-                      : `${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 hover:bg-gray-750"
-                            : "border-gray-300 bg-gray-50 hover:bg-white"
-                        }`
-                  } ${
-                    isDarkMode ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"
-                  } focus:outline-none`}
+                  className={`w-full rounded-full pl-10 pr-10 py-2 sm:py-2.5 text-sm border transition-all duration-300 ${searchFocused
+                    ? `ring-2 ${isDarkMode
+                      ? "border-red-500 ring-red-500/50 bg-gray-800 shadow-lg"
+                      : "border-red-500 ring-red-500/50 bg-white shadow-lg"
+                    }`
+                    : `${isDarkMode
+                      ? "border-gray-600 bg-gray-800 hover:bg-gray-750"
+                      : "border-gray-300 bg-gray-50 hover:bg-white"
+                    }`
+                    } ${isDarkMode ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"
+                    } focus:outline-none`}
                 />
                 <Search
-                  className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 ${
-                    searchFocused ? "text-red-500" : isDarkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 ${searchFocused ? "text-red-500" : isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
                 />
                 {searchValue && (
                   <button
                     onClick={clearSearch}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 ${
-                      isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"
-                    }`}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 ${isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"
+                      }`}
                   >
                     <X className="h-full w-full" />
                   </button>
                 )}
                 {searchFocused && (
                   <div
-                    className={`absolute top-full left-0 right-0 mt-1 rounded-lg border z-50 p-3 transition-all duration-300 max-h-96 overflow-y-auto scrollbar-hide ${
-                      isDarkMode ? "bg-gray-800 border-gray-700 shadow-xl" : "bg-white border-gray-200 shadow-xl"
-                    }`}
+                    className={`absolute top-full left-0 right-0 mt-1 rounded-lg border z-50 p-3 transition-all duration-300 max-h-96 overflow-y-auto scrollbar-hide ${isDarkMode ? "bg-gray-800 border-gray-700 shadow-xl" : "bg-white border-gray-200 shadow-xl"
+                      }`}
                   >
                     {searchValue && searchLoading ? (
                       <div className="text-center text-xs font-medium text-gray-500 py-2">Searching...</div>
@@ -384,32 +374,30 @@ const Base = () => {
                               setSearchFocused(false);
                               setSearchValue("");
                               setSearchResults([]);
-                              navigate(`/product/${product.id}`);
+                              navigate(createProductUrl(product.id, product.name));
                             }}
-                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200 hover:bg-opacity-80 ${
-                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                            }`}
+                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200 hover:bg-opacity-80 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                              }`}
                           >
                             <img
-                              src={(function(p){ if(!p) return ''; if(/^https?:\/\//i.test(p)) return p; return `${MEDIA_BASE}${p.startsWith('/') ? '' : '/'}${p}` })(product.images[0]?.images || '')}
+                              src={(function (p) { if (!p) return ''; if (/^https?:\/\//i.test(p)) return p; return `${MEDIA_BASE}${p.startsWith('/') ? '' : '/'}${p}` })(product.images[0]?.images || '')}
                               alt={product.name}
                               className="w-12 h-12 object-cover rounded-md"
                               loading="lazy"
                             />
                             <div className="flex-1">
-                              <h3 className={`text-sm font-medium line-clamp-1 ${
-                                isDarkMode ? "text-white" : "text-gray-900"
-                              }`}>{product.name}</h3>
+                              <h3 className={`text-sm font-medium line-clamp-1 ${isDarkMode ? "text-white" : "text-gray-900"
+                                }`}>{product.name}</h3>
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1 text-amber-500">
-                                  <Star size={10} fill="currentColor" />
-                                  <span className={`text-xs font-medium ${
-                                    isDarkMode ? "text-gray-400" : "text-gray-600"
-                                  }`}>{product.rating || 4.8}</span>
-                                </div>
-                                <span className={`text-sm font-bold ${
-                                  isDarkMode ? "text-white" : "text-gray-900"
-                                }`}>${product.price}</span>
+                                {product.rating && (
+                                  <div className="flex items-center gap-1 text-amber-500">
+                                    <Star size={10} fill="currentColor" />
+                                    <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                                      }`}>{product.rating}</span>
+                                  </div>
+                                )}
+                                <span className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"
+                                  }`}>${product.price}</span>
                               </div>
                             </div>
                           </div>
@@ -420,9 +408,8 @@ const Base = () => {
                     ) : (
                       <>
                         <p
-                          className={`text-xs font-medium mb-2 flex items-center gap-1.5 ${
-                            isDarkMode ? "text-gray-300" : "text-gray-600"
-                          }`}
+                          className={`text-xs font-medium mb-2 flex items-center gap-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-600"
+                            }`}
                         >
                           <Sparkles className="h-3 w-3 text-red-500" /> Trending
                         </p>
@@ -434,11 +421,10 @@ const Base = () => {
                                 setSearchValue(tag);
                                 setSearchFocused(true);
                               }}
-                              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 transform hover:scale-105 ${
-                                isDarkMode
-                                  ? "bg-gray-700 text-gray-300 hover:bg-red-600/20 hover:text-red-300"
-                                  : "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600"
-                              }`}
+                              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 transform hover:scale-105 ${isDarkMode
+                                ? "bg-gray-700 text-gray-300 hover:bg-red-600/20 hover:text-red-300"
+                                : "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600"
+                                }`}
                             >
                               {tag}
                             </button>
@@ -453,11 +439,10 @@ const Base = () => {
               {/* Desktop Icons */}
               <div className="hidden md:flex items-center space-x-7 shrink-0">
                 <button
-                  className={`relative p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-                    isDarkMode
-                      ? "text-gray-300 hover:text-red-400 hover:bg-gray-800"
-                      : "text-gray-600 hover:text-red-600 hover:bg-gray-100"
-                  }`}
+                  className={`relative p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${isDarkMode
+                    ? "text-gray-300 hover:text-red-400 hover:bg-gray-800"
+                    : "text-gray-600 hover:text-red-600 hover:bg-gray-100"
+                    }`}
                 >
                   <Bell className="h-6 w-6" />
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-medium rounded-full w-4 h-4 flex items-center justify-center animate-bounce">
@@ -469,11 +454,10 @@ const Base = () => {
                   <div className="relative group">
                     <NavLinkMemo
                       to="/profile"
-                      className={`flex items-center px-6 py-4 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                        isDarkMode
-                          ? "text-gray-300 hover:text-white hover:bg-gray-800"
-                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-                      }`}
+                      className={`flex items-center px-6 py-4 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 ${isDarkMode
+                        ? "text-gray-300 hover:text-white hover:bg-gray-800"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                        }`}
                     >
                       {user.profile_picture ? (
                         <img
@@ -483,21 +467,19 @@ const Base = () => {
                       ) : (
                         <User className="h-6 w-6 mr-1.5" />
                       )}
-                      {user.first_name.toUpperCase()}
+                      {(user.first_name || '').toUpperCase()}
                     </NavLinkMemo>
 
                     <div
-                      className={`absolute top-full right-0 mt-2 w-48 rounded-lg shadow-xl z-50 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 opacity-0 translate-y-2 pointer-events-none group-hover:pointer-events-auto ${
-                        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-                      }`}
+                      className={`absolute top-full right-0 mt-2 w-48 rounded-lg shadow-xl z-50 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 opacity-0 translate-y-2 pointer-events-none group-hover:pointer-events-auto ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+                        }`}
                     >
                       <button
                         onClick={handleLogout}
-                        className={`w-full flex items-center px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                          isDarkMode
-                            ? "text-gray-300 hover:text-white hover:bg-gray-700"
-                            : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                        }`}
+                        className={`w-full flex items-center px-4 py-2 text-sm font-medium transition-all duration-300 ${isDarkMode
+                          ? "text-gray-300 hover:text-white hover:bg-gray-700"
+                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                          }`}
                       >
                         <LogOut className="h-4 w-4 mr-2" /> Logout
                       </button>
@@ -510,10 +492,9 @@ const Base = () => {
                       navigate("/login");
                     }}
                     to="/login"
-                    className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                      isDarkMode
-                        ? "text-gray-300 hover:text-white hover:bg-gray-800"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                    className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 ${isDarkMode
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
                       }`}
                   >
                     <User className="h-6 w-6 mr-1.8" />
@@ -526,11 +507,10 @@ const Base = () => {
                     navigate("/cart");
                   }}
                   to="/cart"
-                  className={`relative p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-                    isDarkMode
-                      ? "text-gray-300 hover:text-red-400 hover:bg-gray-800"
-                      : "text-gray-600 hover:text-red-600 hover:bg-gray-100"
-                  }`}
+                  className={`relative p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${isDarkMode
+                    ? "text-gray-300 hover:text-red-400 hover:bg-gray-800"
+                    : "text-gray-600 hover:text-red-600 hover:bg-gray-100"
+                    }`}
                 >
                   <ShoppingCart className="h-6 w-6" />
                   <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-medium rounded-full w-4 h-4 flex items-center justify-center animate-bounce">
@@ -540,11 +520,10 @@ const Base = () => {
 
                 <button
                   onClick={toggleDarkMode}
-                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 hover:rotate-180 ${
-                    isDarkMode
-                      ? "text-yellow-400 hover:text-yellow-300 hover:bg-gray-800"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-                  }`}
+                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 hover:rotate-180 ${isDarkMode
+                    ? "text-yellow-400 hover:text-yellow-300 hover:bg-gray-800"
+                    : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
+                    }`}
                 >
                   {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
                 </button>
@@ -558,9 +537,8 @@ const Base = () => {
                     e.preventDefault();
                     navigate("/cart");
                   }}
-                  className={`relative p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-                    isDarkMode ? "text-gray-300 hover:text-red-400" : "text-gray-600 hover:text-red-600"
-                  }`}
+                  className={`relative p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${isDarkMode ? "text-gray-300 hover:text-red-400" : "text-gray-600 hover:text-red-600"
+                    }`}
                 >
                   <ShoppingCart className="h-5 w-5" />
                   <span className="absolute -top-0.5 -right-0.5 bg-blue-500 text-white text-xs font-medium rounded-full w-3.5 h-3.5 flex items-center justify-center animate-bounce">
@@ -569,9 +547,8 @@ const Base = () => {
                 </NavLinkMemo>
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className={`p-2 rounded-lg transition-all duration-300 transform ${
-                    menuOpen ? "rotate-90 scale-110" : ""
-                  } ${isDarkMode ? "text-gray-300 hover:text-red-400" : "text-gray-600 hover:text-red-600"}`}
+                  className={`p-2 rounded-lg transition-all duration-300 transform ${menuOpen ? "rotate-90 scale-110" : ""
+                    } ${isDarkMode ? "text-gray-300 hover:text-red-400" : "text-gray-600 hover:text-red-600"}`}
                   ref={menuBtnRef}
                   onMouseDown={(e) => e.stopPropagation()}
                 >
@@ -584,31 +561,27 @@ const Base = () => {
           {/* Mobile Menu */}
           <div
             ref={menuRef}
-            className={`md:hidden absolute left-0 right-0 top-full z-50 transform origin-top transition-all duration-500 ease-out ${
-              menuOpen
-                ? "scale-y-100 opacity-100 pointer-events-auto translate-y-0"
-                : "scale-y-0 opacity-0 pointer-events-none -translate-y-4"
-            }`}
+            className={`md:hidden absolute left-0 right-0 top-full z-50 transform origin-top transition-all duration-500 ease-out ${menuOpen
+              ? "scale-y-100 opacity-100 pointer-events-auto translate-y-0"
+              : "scale-y-0 opacity-0 pointer-events-none -translate-y-4"
+              }`}
           >
             <div
-              className={`px-3 sm:px-4 py-6 space-y-2 border-t backdrop-blur-lg ${
-                isDarkMode ? "border-gray-700 bg-gray-900/95" : "border-gray-200 bg-white/95"
-              } shadow-xl`}
+              className={`px-3 sm:px-4 py-6 space-y-2 border-t backdrop-blur-lg ${isDarkMode ? "border-gray-700 bg-gray-900/95" : "border-gray-200 bg-white/95"
+                } shadow-xl`}
             >
               <div
-                className={`transform transition-all duration-700 delay-100 ${
-                  menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
-                }`}
+                className={`transform transition-all duration-700 delay-100 ${menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
+                  }`}
               >
                 {user ? (
                   <>
                     <NavLinkMemo
                       to="/profile"
-                      className={`flex items-center p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${
-                        isDarkMode
-                          ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
-                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                      } hover:shadow-lg`}
+                      className={`flex items-center p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${isDarkMode
+                        ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        } hover:shadow-lg`}
                     >
                       {user.profile_picture ? (
                         <img
@@ -623,11 +596,10 @@ const Base = () => {
                     </NavLinkMemo>
                     <button
                       onClick={handleLogout}
-                      className={`flex items-center w-full p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${
-                        isDarkMode
-                          ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
-                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                      } hover:shadow-lg`}
+                      className={`flex items-center w-full p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${isDarkMode
+                        ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        } hover:shadow-lg`}
                     >
                       <LogOut className="h-5 w-5 mr-3" />
                       <span className="font-medium">Logout</span>
@@ -640,10 +612,9 @@ const Base = () => {
                       navigate("/login");
                     }}
                     to="/login"
-                    className={`flex items-center p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${
-                      isDarkMode
-                        ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    className={`flex items-center p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${isDarkMode
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                       } hover:shadow-lg`}
                   >
                     <User className="h-5 w-5 mr-3" />
@@ -653,16 +624,14 @@ const Base = () => {
               </div>
 
               <div
-                className={`transform transition-all duration-700 delay-300 ${
-                  menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
-                }`}
+                className={`transform transition-all duration-700 delay-300 ${menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
+                  }`}
               >
                 <button
-                  className={`flex items-center justify-between w-full p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${
-                    isDarkMode
-                      ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  } hover:shadow-lg`}
+                  className={`flex items-center justify-between w-full p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${isDarkMode
+                    ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    } hover:shadow-lg`}
                 >
                   <div className="flex items-center">
                     <Bell className="h-5 w-5 mr-3" />
@@ -675,17 +644,15 @@ const Base = () => {
               </div>
 
               <div
-                className={`border-t pt-4 mt-4 transform transition-all duration-700 delay-400 ${
-                  menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
-                } ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                className={`border-t pt-4 mt-4 transform transition-all duration-700 delay-400 ${menuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
+                  } ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
               >
                 <button
                   onClick={toggleDarkMode}
-                  className={`flex items-center w-full p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${
-                    isDarkMode
-                      ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  } hover:shadow-lg`}
+                  className={`flex items-center w-full p-3 rounded-xl transition-all duration-300 transform hover:translate-x-2 hover:scale-105 active:scale-95 ${isDarkMode
+                    ? "text-gray-300 hover:text-white hover:bg-gray-800/80"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    } hover:shadow-lg`}
                 >
                   {isDarkMode ? (
                     <>
@@ -706,18 +673,15 @@ const Base = () => {
 
         {/* Category Navbar */}
         <nav
-          className={`${
-            isDarkMode ? "bg-gray-800/80" : "bg-white/80"
-          } backdrop-blur-md border-y ${
-            isDarkMode ? "border-gray-700" : "border-gray-200"
-          } shadow-sm sticky top-[56px] sm:top-[64px] z-40`}
+          className={`${isDarkMode ? "bg-gray-800/80" : "bg-white/80"
+            } backdrop-blur-md border-y ${isDarkMode ? "border-gray-700" : "border-gray-200"
+            } shadow-sm sticky top-[56px] sm:top-[64px] z-40`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-center relative">
               <div
-                className={`absolute left-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-r ${
-                  isDarkMode ? "from-gray-800/80" : "from-white/80"
-                }`}
+                className={`absolute left-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-r ${isDarkMode ? "from-gray-800/80" : "from-white/80"
+                  }`}
               ></div>
               <ul
                 className="flex gap-2 sm:gap-8 items-center overflow-x-auto flex-nowrap py-2"
@@ -731,11 +695,10 @@ const Base = () => {
                   <li key={category.name} className="flex-shrink-0">
                     <NavLinkMemo
                       to={category.href}
-                      className={`block px-4 py-2 text-sm font-semibold rounded-full whitespace-nowrap transition-all duration-300 transform hover:scale-105 ${
-                        isDarkMode
-                          ? "text-gray-300 bg-gray-700/50 hover:bg-red-600 hover:text-white"
-                          : "text-gray-600 bg-gray-100 hover:bg-red-500 hover:text-white"
-                      } hover:shadow-lg hover:shadow-red-500/30 active:scale-95`}
+                      className={`block px-4 py-2 text-sm font-semibold rounded-full whitespace-nowrap transition-all duration-300 transform hover:scale-105 ${isDarkMode
+                        ? "text-gray-300 bg-gray-700/50 hover:bg-red-600 hover:text-white"
+                        : "text-gray-600 bg-gray-100 hover:bg-red-500 hover:text-white"
+                        } hover:shadow-lg hover:shadow-red-500/30 active:scale-95`}
                     >
                       {category.name}
                     </NavLinkMemo>
@@ -743,9 +706,8 @@ const Base = () => {
                 ))}
               </ul>
               <div
-                className={`absolute right-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-l ${
-                  isDarkMode ? "from-gray-800/80" : "from-white/80"
-                }`}
+                className={`absolute right-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-l ${isDarkMode ? "from-gray-800/80" : "from-white/80"
+                  }`}
               ></div>
             </div>
           </div>
@@ -771,8 +733,9 @@ const Base = () => {
               path="/search"
               element={<SearchPage addToCart={addToCart} isDarkMode={isDarkMode} />}
             />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
-           <Routes>
+          <Routes>
             <Route path="/latest" element={<Products addToCart={addToCart} isDarkMode={isDarkMode} />} />
           </Routes>
         </div>

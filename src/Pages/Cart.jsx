@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Trash2, MinusCircle, PlusCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getCart, updateQuantity, removeFromCart, CART_KEY } from '../utils/cart';
-import { API_BASE } from '../base_api';
+import { API_BASE, MEDIA_BASE } from '../base_api';
+
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stored = getCart();
@@ -14,7 +17,7 @@ const Cart = () => {
       quantity: Number(it.quantity) || 0,
       price: Number(it.price) || 0,
       image: it.image
-        ? (String(it.image).startsWith('http') ? it.image : `${API_BASE}${it.image}`)
+        ? (String(it.image).startsWith('http') ? it.image : `${MEDIA_BASE}${it.image.startsWith('/') ? '' : '/'}${it.image}`)
         : ''
     }));
     console.log('Loaded cart from storage:', normalized);
@@ -28,7 +31,7 @@ const Cart = () => {
         quantity: Number(it.quantity) || 0,
         price: Number(it.price) || 0,
         image: it.image
-          ? (String(it.image).startsWith('http') ? it.image : `${API_BASE}${it.image}`)
+          ? (String(it.image).startsWith('http') ? it.image : `${MEDIA_BASE}${it.image.startsWith('/') ? '' : '/'}${it.image}`)
           : ''
       })));
     };
@@ -73,17 +76,17 @@ const Cart = () => {
   return (
     <div className="w-full mx-0 px-2 py-8">
       <h1 className="text-2xl font-bold mb-8">Shopping Cart</h1>
-      
+
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Cart Items */}
         <div className="flex-grow">
           {cartItems.length === 0 && <div className="text-gray-600">Your cart is empty.</div>}
           {cartItems.map((item) => (
             <div key={item.id} className="flex gap-4 p-4 mb-4 bg-white rounded-lg shadow-sm">
-              <img src={item.image || `${API_BASE}/static/default-product.png`} alt={item.name} className="w-24 h-24 object-cover rounded-md" />
+              <img src={item.image || '/default-product.png'} alt={item.name} className="w-24 h-24 object-cover rounded-md" />
               <div className="flex-grow">
                 <h3 className="font-medium">{item.name}</h3>
-                <p className="text-gray-600">${Number(item.price).toFixed(2)}</p>
+                <p className="text-gray-600">Rs{Number(item.price).toFixed(2)}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <button onClick={() => dec(item.id)} className="p-1"><MinusCircle size={20} /></button>
                   <span>{Number(item.quantity)}</span>
@@ -115,7 +118,10 @@ const Cart = () => {
                 </div>
               </div>
             </div>
-            <button className="w-full bg-red-600 text-white py-3 rounded-lg mt-6 hover:bg-red-700 transition-colors">
+            <button
+              onClick={() => navigate('/checkout')}
+              className="w-full bg-red-600 text-white py-3 rounded-lg mt-6 hover:bg-red-700 transition-colors"
+            >
               Proceed to Checkout
             </button>
           </div>

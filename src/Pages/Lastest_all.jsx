@@ -3,6 +3,7 @@ import { Star, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { addToCart as addToLocalCart } from '../utils/cart';
 import { apiFetch, API_BASE, MEDIA_BASE } from '../base_api';
 import { useNavigate } from 'react-router-dom';
+import { createProductUrl } from '../utils/slug';
 
 const ProductSkeleton = () => (
   <div className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow transition-all duration-300 group relative overflow-hidden product-skeleton animate-pulse" style={{ minHeight: '8rem' }} />
@@ -135,7 +136,7 @@ const Products = ({ addToCart }) => {
             allProducts.slice(0, displayCount).map((product) => (
               <div
                 key={product.id}
-                onClick={() => navigate(`/product/${product.id}`)}
+                onClick={() => navigate(createProductUrl(product.id, product.name))}
                 className="w-full bg-slate-50 dark:bg-slate-700 rounded-lg shadow hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-pointer"
               >
                 <div className="relative w-full h-24 sm:h-32 overflow-hidden rounded-t-lg">
@@ -144,9 +145,8 @@ const Products = ({ addToCart }) => {
                       key={idx}
                       src={resolveImage(img.images)}
                       alt={product.name}
-                      className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${
-                        idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'
-                      }`}
+                      className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'
+                        }`}
                       loading="lazy"
                       onError={() => console.error(`Failed to load image: ${resolveImage(img.images)}`)}
                     />
@@ -178,15 +178,16 @@ const Products = ({ addToCart }) => {
                 <div className="p-2 space-y-1">
                   <h3 className="font-medium text-slate-900 dark:text-white text-xs leading-tight line-clamp-2 text-left">{product.name}</h3>
                   <div className="flex items-center gap-1 text-amber-500">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={8} fill={i < (product.rating || 4) ? 'currentColor' : 'none'} />
-                    ))}
-                    <span className="text-xs font-medium text-slate-600 dark:text-slate-400 ml-1">({Math.floor(Math.random() * 500) + 100})</span>
+                    {product.rating && (
+                      <>
+                        <Star size={8} fill="currentColor" />
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 ml-1">({product.rating})</span>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <span className="text-sm font-black text-slate-900 dark:text-white">Rs{product.price}</span>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 line-through">Rs{(parseFloat(product.price) * 1.3).toFixed(2)}</div>
                     </div>
                   </div>
                   <div className="flex gap-1">
@@ -202,7 +203,8 @@ const Products = ({ addToCart }) => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToCart(product); // Update for Buy Now logic if needed
+                        handleAddToCart(product);
+                        navigate(createProductUrl(product.id, product.name));
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
                     >
@@ -210,8 +212,6 @@ const Products = ({ addToCart }) => {
                     </button>
                   </div>
                 </div>
-
-                <div className="absolute top-1.5 right-1.5 bg-red-500 dark:bg-red-400 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">-30%</div>
               </div>
             ))
           )}
