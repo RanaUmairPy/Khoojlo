@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Star, Eye, Heart } from 'lucide-react';
-import { apiFetch, API_BASE } from '../base_api';
+import { apiFetch, API_BASE, MEDIA_BASE } from '../base_api';
 import { addToCart as addToLocalCart } from '../utils/cart';
 import { createProductUrl } from '../utils/slug';
 
@@ -41,7 +41,9 @@ const SearchPage = ({ addToCart, isDarkMode }) => {
       id: product.id,
       name: product.name,
       price: Number(product.price) || 0,
-      image: firstImage ? `${API_BASE}${firstImage}` : '',
+      image: firstImage
+        ? (firstImage.startsWith('http') ? firstImage : `${MEDIA_BASE}${firstImage.startsWith('/') ? '' : '/'}${firstImage}`)
+        : '',
     };
     addToLocalCart(cartItem, 1);
     if (addToCart) addToCart(product);
@@ -73,7 +75,7 @@ const SearchPage = ({ addToCart, isDarkMode }) => {
                   {(product.images || []).map((img, idx) => (
                     <img
                       key={idx}
-                      src={`${API_BASE}${img.images}`}
+                      src={img.images.startsWith('http') ? img.images : `${MEDIA_BASE}${img.images.startsWith('/') ? '' : '/'}${img.images}`}
                       alt={product.name}
                       className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-300 ${idx === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100'}`}
                       loading="lazy"
