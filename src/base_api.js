@@ -1,6 +1,6 @@
-export const API_BASE = 'http://127.0.0.1:8000/api';
+export const API_BASE = 'https://khoojlo-backend-1.onrender.com/api';
 // Public domain root for media/static files (no /api prefix)
-export const MEDIA_BASE = 'http://127.0.0.1:8000';
+export const MEDIA_BASE = 'https://khoojlo-backend-1.onrender.com';
 
 // small helper to build absolute URLs
 const buildUrl = (path) => {

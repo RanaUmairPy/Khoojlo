@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { getCart } from '../utils/cart';
+import { getCart, clearCart } from '../utils/cart';
 import { CreditCard, Truck, AlertCircle } from 'lucide-react';
 import { API_BASE, MEDIA_BASE } from '../base_api';
 
@@ -80,8 +80,8 @@ const Checkout = () => {
 
             if (response.status === 201) {
                 alert(`Order Placed Successfully! Order ID: ${response.data.id}`);
-                localStorage.removeItem('cart');
-                window.dispatchEvent(new Event('cartUpdated'));
+                alert(`Order Placed Successfully! Order ID: ${response.data.id}`);
+                clearCart();
                 navigate('/');
             }
         } catch (err) {
