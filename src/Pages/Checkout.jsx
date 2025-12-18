@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { getCart } from '../utils/cart';
 import { CreditCard, Truck, AlertCircle } from 'lucide-react';
@@ -50,22 +51,43 @@ const Checkout = () => {
 
     const { subtotal, shipping, total } = calculateTotal();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.address || !formData.city || !formData.phone) {
             setError("Please fill in all shipping details.");
             return;
         }
-        // Logic to simulate order placement would go here
-        // e.g., API call to create order
-        console.log('Placing order:', { items, formData, total });
 
-        // For now, simple success feedback
-        alert(`Order Placed Successfully! Total: Rs ${total}`);
-        // Optionally clear cart here using a clearCart utility if it existed, or just navigate
-        localStorage.removeItem('cart');
-        window.dispatchEvent(new Event('cartUpdated')); // Force UI update
-        navigate('/');
+        try {
+            const orderPayload = {
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+                address: formData.address,
+                city: formData.city,
+                zip_code: formData.zip,
+                total_amount: total,
+                cash_on_delivery: formData.paymentMethod === 'cod',
+                items: items.map(item => ({
+                    product: item.id,
+                    quantity: item.quantity,
+                    price: item.price
+                }))
+            };
+
+            const response = await axios.post(`${API_BASE}/v2/order/`, orderPayload);
+
+            if (response.status === 201) {
+                alert(`Order Placed Successfully! Order ID: ${response.data.id}`);
+                localStorage.removeItem('cart');
+                window.dispatchEvent(new Event('cartUpdated'));
+                navigate('/');
+            }
+        } catch (err) {
+            console.error("Order submission failed:", err);
+            setError("Failed to place order. Please try again.");
+        }
     };
 
     return (

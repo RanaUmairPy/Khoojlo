@@ -1,6 +1,6 @@
-export const API_BASE = 'https://rumairpy.pythonanywhere.com/api';
+export const API_BASE = 'http://127.0.0.1:8000/api';
 // Public domain root for media/static files (no /api prefix)
-export const MEDIA_BASE = 'https://rumairpy.pythonanywhere.com';
+export const MEDIA_BASE = 'http://127.0.0.1:8000';
 
 // small helper to build absolute URLs
 const buildUrl = (path) => {
