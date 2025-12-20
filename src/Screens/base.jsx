@@ -319,9 +319,10 @@ const Base = () => {
                 className={`text-lg sm:text-xl md:text-2xl font-bold transition-all duration-300 flex items-center gap-1 sm:gap-2 shrink-0 transform hover:scale-105 ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"
                   }`}
               >
-                <Sparkles
-                  className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 animate-pulse ${isDarkMode ? "text-red-400" : "text-red-600"
-                    }`}
+                <img
+                  src="/shop-logo.png"
+                  alt="Khoojlo Logo"
+                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 object-contain"
                 />
                 Khoojlo
               </NavLinkMemo>
