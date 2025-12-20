@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_BASE,MEDIA_BASE } from "../base_api";
+import { API_BASE, MEDIA_BASE } from "../base_api";
 
-import { 
-  Package, 
+import {
+  Package,
   Plus,
   Search,
   Edit3,
@@ -15,7 +15,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 
-const CATEGORY_CHOICES = ["Bags", "Shoes"];
+const CATEGORY_CHOICES = ["Bags", "Shoes", "Belts", "Leather Jackets", "Suit Jackets"];
 
 // ImageSlider Component
 const ImageSlider = ({ images }) => {
@@ -252,7 +252,7 @@ const ProductsTab = () => {
               <p className="text-sm font-medium text-gray-600">Total Products</p>
               <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
             </div>
-            <div className="bg-blue-100 p-3 rounded-lg"><Package className="w-6 h-6 text-blue-600"/></div>
+            <div className="bg-blue-100 p-3 rounded-lg"><Package className="w-6 h-6 text-blue-600" /></div>
           </div>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md">
@@ -261,7 +261,7 @@ const ProductsTab = () => {
               <p className="text-sm font-medium text-gray-600">Total Value</p>
               <p className="text-2xl font-bold text-gray-900">PKR {totalValue.toFixed(2)}</p>
             </div>
-            <div className="bg-green-100 p-3 rounded-lg"><DollarSign className="w-6 h-6 text-green-600"/></div>
+            <div className="bg-green-100 p-3 rounded-lg"><DollarSign className="w-6 h-6 text-green-600" /></div>
           </div>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md">
@@ -270,7 +270,7 @@ const ProductsTab = () => {
               <p className="text-sm font-medium text-gray-600">Avg. Price</p>
               <p className="text-2xl font-bold text-gray-900">PKR {averagePrice.toFixed(2)}</p>
             </div>
-            <div className="bg-purple-100 p-3 rounded-lg"><TrendingUp className="w-6 h-6 text-purple-600"/></div>
+            <div className="bg-purple-100 p-3 rounded-lg"><TrendingUp className="w-6 h-6 text-purple-600" /></div>
           </div>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md">
@@ -279,7 +279,7 @@ const ProductsTab = () => {
               <p className="text-sm font-medium text-gray-600">Low Stock</p>
               <p className="text-2xl font-bold text-gray-900">{lowStockCount}</p>
             </div>
-            <div className="bg-yellow-100 p-3 rounded-lg"><AlertTriangle className="w-6 h-6 text-yellow-600"/></div>
+            <div className="bg-yellow-100 p-3 rounded-lg"><AlertTriangle className="w-6 h-6 text-yellow-600" /></div>
           </div>
         </div>
       </div>
@@ -288,8 +288,8 @@ const ProductsTab = () => {
       <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {filteredProducts.length > 0 ? (
           filteredProducts.map(product => (
-            <div 
-              key={product.id} 
+            <div
+              key={product.id}
               className="bg-white rounded-lg shadow-sm overflow-visible hover:shadow-md transition-all flex flex-col"
             >
               <div className="w-full h-24 bg-gray-100 relative flex-shrink-0">
@@ -309,14 +309,14 @@ const ProductsTab = () => {
                   <span className="text-sm font-bold text-gray-900">RS{parseFloat(product.price).toFixed(2)}</span>
                 </div>
                 <div className="flex gap-1 mt-auto min-h-[2rem]">
-                  <button 
-                    onClick={() => handleEdit(product)} 
+                  <button
+                    onClick={() => handleEdit(product)}
                     className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-1 text-sm"
                   >
                     <Edit3 className="w-4 h-4" /> Edit
                   </button>
-                  <button 
-                    onClick={() => handleDelete(product.id)} 
+                  <button
+                    onClick={() => handleDelete(product.id)}
                     className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-2 px-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-1 text-sm"
                   >
                     <Trash2 className="w-4 h-4" /> Delete
@@ -341,56 +341,56 @@ const ProductsTab = () => {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold">{editingProductId ? "Edit Product" : "Add New Product"}</h3>
               <button onClick={() => setShowAddModal(false)} className="hover:bg-gray-100 rounded p-1">
-                <X className="w-6 h-6 text-gray-400 hover:text-gray-600"/>
+                <X className="w-6 h-6 text-gray-400 hover:text-gray-600" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input 
-                type="text" 
-                name="name" 
-                value={formData.name} 
-                onChange={handleChange} 
-                placeholder="Product Name" 
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                required 
-              />
-              <textarea 
-                name="description" 
-                value={formData.description} 
-                onChange={handleChange} 
-                placeholder="Description" 
-                rows={3} 
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" 
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Product Name"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
-              <input 
-                type="number" 
-                name="price" 
-                value={formData.price} 
-                onChange={handleChange} 
-                placeholder="Price" 
-                step="0.01" 
-                min="0" 
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Description"
+                rows={3}
+                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 required
               />
-              <select 
-                name="category" 
-                value={formData.category} 
-                onChange={handleChange} 
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder="Price"
+                step="0.01"
+                min="0"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 {CATEGORY_CHOICES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2"/>
-                <input 
-                  type="file" 
-                  name="images" 
-                  onChange={handleChange} 
-                  multiple 
-                  accept="image/*" 
-                  className="hidden" 
+                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <input
+                  type="file"
+                  name="images"
+                  onChange={handleChange}
+                  multiple
+                  accept="image/*"
+                  className="hidden"
                   id="image-upload"
                 />
                 <label htmlFor="image-upload" className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium">
@@ -401,15 +401,15 @@ const ProductsTab = () => {
                 )}
               </div>
               <div className="flex gap-3 pt-4">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium"
                 >
                   {editingProductId ? "Update" : "Add"} Product
                 </button>
-                <button 
-                  type="button" 
-                  onClick={() => setShowAddModal(false)} 
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
                   className="flex-1 bg-gray-200 py-3 rounded-lg text-gray-800 hover:bg-gray-300 transition-colors font-medium"
                 >
                   Cancel

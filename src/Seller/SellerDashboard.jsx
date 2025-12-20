@@ -27,6 +27,9 @@ import {
 const CATEGORY_CHOICES = [
   "Bags",
   "Shoes",
+  "Belts",
+  "Leather Jackets",
+  "Suit Jackets",
 ];
 
 // ImageSlider Component
@@ -501,8 +504,8 @@ const OrderDetailsModal = ({ order, onClose, onUpdateStatus }) => {
           </div>
           <div className="flex gap-3">
             <div className={`px-4 py-2 rounded-lg font-medium border ${order.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-200' :
-                ['Delivered', 'Shipped'].includes(order.status) ? 'bg-green-100 text-green-700 border-green-200' :
-                  'bg-blue-100 text-blue-700 border-blue-200'
+              ['Delivered', 'Shipped'].includes(order.status) ? 'bg-green-100 text-green-700 border-green-200' :
+                'bg-blue-100 text-blue-700 border-blue-200'
               }`}>
               Status: {order.status || 'Placed'}
             </div>
@@ -826,8 +829,8 @@ const OrdersTab = () => {
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === 'Delivered' || order.status === 'Confirmed' || order.status === 'Shipped' ? 'bg-green-100 text-green-800' :
-                      order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                        'bg-blue-100 text-blue-800'
+                    order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                      'bg-blue-100 text-blue-800'
                     }`}>
                     {order.status || 'Placed'}
                   </span>
