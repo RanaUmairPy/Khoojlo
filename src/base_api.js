@@ -1,6 +1,6 @@
-export const API_BASE = 'https://khoojlo-backend-1.onrender.com/api';
+export const API_BASE = 'https://web-rftm9us5p7ea.up-de-fra1-k8s-1.apps.run-on-seenode.com/api';
 // Public domain root for media/static files (no /api prefix)
-export const MEDIA_BASE = 'https://khoojlo-backend-1.onrender.com';
+export const MEDIA_BASE = 'https://web-rftm9us5p7ea.up-de-fra1-k8s-1.apps.run-on-seenode.com';
 
 // small helper to build absolute URLs
 const buildUrl = (path) => {
