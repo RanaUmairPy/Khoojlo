@@ -23,6 +23,7 @@ import CategoryPage from "../Pages/CategoryPage";
 import ProductDetails from "../Pages/Product_details";
 import SearchPage from "../Pages/Search_page";
 import Checkout from "../Pages/Checkout"; // Import Checkout
+import OrderSuccess from "../Pages/OrderSuccess"; // Import OrderSuccess
 import { getCart } from "../utils/cart";
 import Products from "../Pages/Lastest_all";
 import { createProductUrl } from "../utils/slug"; // Import helper
@@ -745,6 +746,7 @@ const Base = () => {
               element={<SearchPage addToCart={addToCart} isDarkMode={isDarkMode} />}
             />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-success" element={<OrderSuccess />} />
           </Routes>
           <Routes>
             <Route path="/latest" element={<Products addToCart={addToCart} isDarkMode={isDarkMode} />} />

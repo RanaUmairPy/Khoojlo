@@ -78,12 +78,17 @@ const Checkout = () => {
 
             const response = await axios.post(`${API_BASE}/v2/order/`, orderPayload);
 
-            if (response.status === 201) {
-                alert(`Order Placed Successfully! Order ID: ${response.data.id}`);
-                alert(`Order Placed Successfully! Order ID: ${response.data.id}`);
-                clearCart();
-                navigate('/');
-            }
+            // Prepare details for success page
+            const successDetails = {
+                orderId: response.data.id,
+                orderDetails: {
+                    items: items,
+                    total_amount: total,
+                    shipping_address: formData
+                }
+            };
+            clearCart();
+            navigate('/order-success', { state: successDetails });
         } catch (err) {
             console.error("Order submission failed:", err);
             setError("Failed to place order. Please try again.");
