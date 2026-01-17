@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Star, ArrowLeft, Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw, Plus, Minus, Check, AlertCircle, Sparkles } from 'lucide-react';
 import { API_BASE, MEDIA_BASE, apiFetch } from '../base_api';
-import { addToCart as addToLocalCart } from '../utils/cart';
+import { addToCart as addToLocalCart, getCart } from '../utils/cart';
 
 const ProductDetails = () => {
   const { id: paramId } = useParams();
@@ -146,6 +146,22 @@ const ProductDetails = () => {
     };
   }, [product]);
 
+  // Check if product is in cart
+  useEffect(() => {
+    if (!product) return;
+    const checkCart = () => {
+      const cart = getCart();
+      const inCart = cart.some(item => String(item.id) === String(product.id));
+      setAddedToCart(inCart);
+    };
+
+    checkCart();
+
+    const handleCartUpdate = () => checkCart();
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, [product]);
+
   const handleQuantityChange = (delta) => {
     setQuantity(prev => Math.max(1, Math.min(99, prev + delta)));
   };
@@ -163,7 +179,6 @@ const ProductDetails = () => {
 
     addToLocalCart(cartItem, quantity);
     setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const toggleWishlist = () => {

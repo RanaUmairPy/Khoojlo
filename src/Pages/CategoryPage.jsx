@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, Eye, Heart } from 'lucide-react';
-import { addToCart as addToLocalCart } from '../utils/cart';
+import { Star, Eye, Heart, Check } from 'lucide-react';
+import { addToCart as addToLocalCart, getCart } from '../utils/cart';
 import { API_BASE, MEDIA_BASE, apiFetch } from '../base_api';
 import { createProductUrl } from '../utils/slug';
 
@@ -23,6 +23,17 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
   // incremental loading
   const [displayCount, setDisplayCount] = useState(BATCH);
   const loadMoreRef = useRef(null);
+  const [cartItems, setCartItems] = useState(new Set());
+
+  useEffect(() => {
+    const updateCartState = () => {
+      const cart = getCart();
+      setCartItems(new Set(cart.map(item => String(item.id))));
+    };
+    updateCartState();
+    window.addEventListener('cartUpdated', updateCartState);
+    return () => window.removeEventListener('cartUpdated', updateCartState);
+  }, []);
 
   useEffect(() => {
     const fetchCategory = category || 'shoes'; // Fallback to 'shoes'
@@ -140,9 +151,12 @@ const CategoryPage = ({ addToCart, isDarkMode }) => {
                     <div className="flex gap-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
-                        className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                        className={`flex-1 flex items-center justify-center gap-1 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200 ${cartItems.has(String(product.id))
+                          ? 'bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600'
+                          : 'bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600'
+                          }`}
                       >
-                        Add to Cart
+                        {cartItems.has(String(product.id)) ? <><Check size={12} /> Added</> : 'Add to Cart'}
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleAddToCart(product); navigate(createProductUrl(product.id, product.name)); }}

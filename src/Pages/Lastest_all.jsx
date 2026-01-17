@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Star, Eye, Heart, ShoppingBag } from 'lucide-react';
-import { addToCart as addToLocalCart } from '../utils/cart';
+import { Star, Eye, Heart, ShoppingBag, Check } from 'lucide-react';
+import { addToCart as addToLocalCart, getCart } from '../utils/cart';
 import { apiFetch, API_BASE, MEDIA_BASE } from '../base_api';
 import { useNavigate } from 'react-router-dom';
 import { createProductUrl } from '../utils/slug';
@@ -16,6 +16,17 @@ const Products = ({ addToCart }) => {
   const BATCH = 24;
   const [displayCount, setDisplayCount] = useState(BATCH);
   const loadMoreRef = useRef(null);
+  const [cartItems, setCartItems] = useState(new Set());
+
+  useEffect(() => {
+    const updateCartState = () => {
+      const cart = getCart();
+      setCartItems(new Set(cart.map(item => String(item.id))));
+    };
+    updateCartState();
+    window.addEventListener('cartUpdated', updateCartState);
+    return () => window.removeEventListener('cartUpdated', updateCartState);
+  }, []);
 
   // resolve image paths to absolute URLs (use MEDIA_BASE for relative paths)
   const resolveImage = (path) => {
@@ -196,9 +207,12 @@ const Products = ({ addToCart }) => {
                         e.stopPropagation();
                         handleAddToCart(product);
                       }}
-                      className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200"
+                      className={`flex-1 flex items-center justify-center gap-1 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200 ${cartItems.has(String(product.id))
+                        ? 'bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600'
+                        : 'bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600'
+                        }`}
                     >
-                      Add to Cart
+                      {cartItems.has(String(product.id)) ? <><Check size={12} /> Added</> : 'Add to Cart'}
                     </button>
                     <button
                       onClick={(e) => {

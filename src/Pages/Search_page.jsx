@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Star, Eye, Heart } from 'lucide-react';
+import { Star, Eye, Heart, Check } from 'lucide-react';
 import { apiFetch, API_BASE, MEDIA_BASE } from '../base_api';
-import { addToCart as addToLocalCart } from '../utils/cart';
+import { addToCart as addToLocalCart, getCart } from '../utils/cart';
 import { createProductUrl } from '../utils/slug';
 
 const ProductSkeleton = () => (
@@ -15,6 +15,17 @@ const SearchPage = ({ addToCart, isDarkMode }) => {
   const query = new URLSearchParams(location.search).get('q') || '';
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cartItems, setCartItems] = useState(new Set());
+
+  useEffect(() => {
+    const updateCartState = () => {
+      const cart = getCart();
+      setCartItems(new Set(cart.map(item => String(item.id))));
+    };
+    updateCartState();
+    window.addEventListener('cartUpdated', updateCartState);
+    return () => window.removeEventListener('cartUpdated', updateCartState);
+  }, []);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -121,9 +132,12 @@ const SearchPage = ({ addToCart, isDarkMode }) => {
                   <div className="flex gap-1">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
-                      className={`flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200`}
+                      className={`flex-1 flex items-center justify-center gap-1 text-white py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-colors duration-200 ${cartItems.has(String(product.id))
+                        ? 'bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600'
+                        : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
+                        }`}
                     >
-                      Add to Cart
+                      {cartItems.has(String(product.id)) ? <><Check size={12} /> Added</> : 'Add to Cart'}
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleAddToCart(product); navigate(createProductUrl(product.id, product.name)); }}
