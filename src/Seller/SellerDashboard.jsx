@@ -472,7 +472,7 @@ const ProductsTab = () => {
 };
 
 // Order Details Modal (Invoice Style)
-const OrderDetailsModal = ({ order, onClose, onUpdateStatus }) => {
+const OrderDetailsModal = ({ order, onClose, onUpdateStatus, onDelete }) => {
   if (!order) return null;
 
   const totalItems = order.order_items ? order.order_items.reduce((sum, item) => sum + item.quantity, 0) : 0;
@@ -618,6 +618,17 @@ const OrderDetailsModal = ({ order, onClose, onUpdateStatus }) => {
               Close
             </button>
 
+            <button
+              onClick={() => {
+                if (window.confirm("Are you sure you want to PERMANENTLY delete this order?")) {
+                  onDelete(order.id);
+                }
+              }}
+              className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-200 flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" /> Delete
+            </button>
+
             {canModify && (
               <button
                 onClick={() => handleAction('Cancelled')}
@@ -697,6 +708,19 @@ const OrdersTab = () => {
       alert("Failed to update order status. Please try again.");
     }
   }
+
+  const deleteOrder = async (orderId) => {
+    try {
+      await axios.delete(`${API_BASE}/v2/order/${orderId}/`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("sellerAccessToken")}` },
+      });
+      setOrders(prev => prev.filter(o => o.id !== orderId));
+      setSelectedOrder(null);
+    } catch (err) {
+      console.error("Failed to delete order", err);
+      alert("Failed to delete order. Please try again.");
+    }
+  };
 
   // Filter Logic
   const getFilteredOrders = () => {
@@ -855,7 +879,12 @@ const OrdersTab = () => {
       </div>
 
       {selectedOrder && (
-        <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} onUpdateStatus={updateStatus} />
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onUpdateStatus={updateStatus}
+          onDelete={deleteOrder}
+        />
       )}
     </div>
   );
